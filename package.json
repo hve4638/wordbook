@@ -1,0 +1,16 @@
+{
+    "name": "wordbook",
+    "version": "0.1.0",
+    "description": "",
+    "scripts": {
+        "electron": "wait-on http://localhost:3000 && cd electron && yarn start",
+        "front": "cd front && yarn start:nobrowser",
+        "start": "concurrently \"yarn electron\" \"yarn front\""
+    },
+    "author": "Hve",
+    "license": "ISC",
+    "devDependencies": {
+        "concurrently": "^9.0.1",
+        "wait-on": "^8.0.1"
+    }
+}
