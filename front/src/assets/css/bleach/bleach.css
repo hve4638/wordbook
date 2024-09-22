@@ -1,0 +1,26 @@
+textarea {
+    font-family: inherit;
+    cursor: auto;
+    padding: 0px;
+    border: 0px;
+    border-radius: 0px;
+}
+
+input {
+    border: 0px;
+}
+
+input:focus-visible {
+    outline: none;
+    outline-offset: 0px;
+}
+
+button {
+    background-color: white;
+    border: 0px;
+}
+
+button:hover {
+    background-color: white;
+    cursor : pointer;
+}

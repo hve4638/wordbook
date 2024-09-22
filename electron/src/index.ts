@@ -8,6 +8,8 @@ function createWindow() {
         minWidth: 300,
         minHeight: 200,
         frame: false,
+        alwaysOnTop: true,
+        
         icon: path.join(__dirname, '../static/favicon.ico'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
@@ -26,9 +28,11 @@ function createWindow() {
     Menu.setApplicationMenu(null);
 
     globalShortcut.register('F5', () => {
+        console.log('F5 is pressed');
         win.reload();
     });
-    globalShortcut.register('F12', () => {
+    globalShortcut.register('F11', () => {
+        console.log('F11 is pressed');
         win.webContents.toggleDevTools();
     });
 

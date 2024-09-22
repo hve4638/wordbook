@@ -3,12 +3,17 @@
     "version": "0.1.0",
     "description": "",
     "scripts": {
+        "start": "concurrently \"yarn electron\" \"yarn front\"",
+        "build": "yarn front:build && yarn electron:build",
+
         "electron": "wait-on http://localhost:3000 && cd electron && yarn start",
         "front": "cd front && yarn start:nobrowser",
-        "start": "concurrently \"yarn electron\" \"yarn front\""
+
+        "electron:build": "cd electron && yarn build",
+        "front:build": "cd front && yarn build"
     },
     "author": "Hve",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "concurrently": "^9.0.1",
         "wait-on": "^8.0.1"
