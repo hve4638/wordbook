@@ -1,12 +1,13 @@
 {
     "name": "wordbook-electron",
     "version": "0.1.0",
-    "description": "",
-    "main": "./dist/index.js",
+    "description": "Simple Wordbook",
+    "main": "compiled/index.js",
+    "homepage": ".",
     "scripts": {
         "start": "tsc && cross-env ELECTRON_DEV=TRUE electron .",
-        "build": "tsc",
-        "electron": "electron ."
+        "start:release": "tsc && cross-env ELECTRON_DEV=FALSE electron .",
+        "build": "tsc && cross-env ELECTRON_DEV=FALSE electron-builder"
     },
     "author": "Hve",
     "license": "ISC",
@@ -15,10 +16,25 @@
         "@types/node": "^22.5.5",
         "concurrently": "^9.0.1",
         "cross-env": "^7.0.3",
+        "electron": "^32.1.2",
+        "electron-builder": "^25.0.5",
         "tsx": "^4.19.1",
         "typescript": "^5.6.2"
     },
-    "dependencies": {
-        "electron": "^32.1.0"
+    "dependencies": {},
+    "build": {
+        "productName": "Wordbook",
+        "appId": "com.hve.wordbook",
+        "extends": null,
+        "icon": "./build/favicon.ico",
+        "files": [
+            "build/**/**",
+            "compiled/**/*",
+            "node_modules/**/*",
+            "package.json"
+        ],
+        "directories": {
+            "buildResources": "assets"
+        }
     }
 }

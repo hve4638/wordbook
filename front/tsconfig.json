@@ -29,6 +29,8 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
+
+        // 경로 별칭
         "baseUrl": "src",
         "paths": {
             "assets/*": ["assets/*"],

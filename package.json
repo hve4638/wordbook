@@ -3,14 +3,15 @@
     "version": "0.1.0",
     "description": "",
     "scripts": {
-        "start": "concurrently \"yarn electron\" \"yarn front\"",
-        "build": "yarn front:build && yarn electron:build",
-
-        "electron": "wait-on http://localhost:3000 && cd electron && yarn start",
+        "start:dev": "concurrently \"yarn electron:dev\" \"yarn front\"",
+        "start:release": "cd electron && yarn start:release",
+        "build": "yarn front:build && yarn front:commit && yarn electron:build",
         "front": "cd front && yarn start:nobrowser",
-
+        
+        "electron:dev": "wait-on http://localhost:3000 && cd electron && yarn start",
         "electron:build": "cd electron && yarn build",
-        "front:build": "cd front && yarn build"
+        "front:build": "cd front && yarn build",
+        "front:commit": "node utils/cp front/build electron/build"
     },
     "author": "Hve",
     "license": "MIT",

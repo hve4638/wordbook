@@ -10,7 +10,7 @@ function createWindow() {
         frame: false,
         alwaysOnTop: true,
         
-        icon: path.join(__dirname, '../static/favicon.ico'),
+        icon: path.join(__dirname, '../build/favicon.ico'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: true,
@@ -20,10 +20,11 @@ function createWindow() {
 
     if (process.env['ELECTRON_DEV'] === 'TRUE') {
         win.loadURL('http://localhost:3000');
+        win.webContents.openDevTools({ mode: "detach" });
     }
     else {
-        const file = path.join(__dirname, '../static/index.html');
-        win.loadFile(file);
+        const file = path.join(__dirname, '../build/index.html');
+        win.loadURL(`file://${file}`);
     }
     Menu.setApplicationMenu(null);
 
@@ -55,4 +56,3 @@ app.on('window-all-closed', function () {
         app.quit();
     }
 });
-
