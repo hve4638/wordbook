@@ -1,5 +1,8 @@
 import path from 'path';
 import { app, BrowserWindow, Menu, shell, globalShortcut } from 'electron';
+import { initIPC } from './ipcHandle'
+
+initIPC();
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -12,7 +15,7 @@ function createWindow() {
         
         icon: path.join(__dirname, '../build/favicon.ico'),
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, './preload/preload.js'),
             nodeIntegration: true,
             contextIsolation: true
         }

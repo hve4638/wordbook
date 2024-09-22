@@ -21,7 +21,10 @@
         "tsx": "^4.19.1",
         "typescript": "^5.6.2"
     },
-    "dependencies": {},
+    "dependencies": {
+        "axios": "^1.7.7",
+        "cheerio": "^1.0.0"
+    },
     "build": {
         "productName": "Wordbook",
         "appId": "com.hve.wordbook",

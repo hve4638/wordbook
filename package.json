@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "description": "",
     "scripts": {
+        "start": "yarn start:dev",
         "start:dev": "concurrently \"yarn electron:dev\" \"yarn front\"",
         "start:release": "cd electron && yarn start:release",
         "build": "yarn front:build && yarn front:commit && yarn electron:build",

@@ -37,6 +37,12 @@ function SearchPage() {
                             width : '1rem',
                             height : '1rem',
                         }}
+                        onClick={
+                            async (e) => {
+                                const [err, result] = await window.electron.searchWord('1234');
+                                console.log(result);
+                            }
+                        }
                     >
                         <GoogleFontIcon
                             style={{fontSize:'0.8rem'}}
