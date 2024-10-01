@@ -1,0 +1,82 @@
+.theme-light {
+    --bookmarked-color: rgb(25, 72, 241);
+    --deleted-color: rgb(242, 52, 52);
+}
+
+.fonticon {
+    color: var(--icon-color);
+    transition: color 0.2s;
+
+    &.disabled {
+        color: var(--icon-disabled-color);
+    }
+
+    &:hover {
+        color: var(--icon-hover-color);
+    }
+
+    &.bookmarked {
+        color: var(--bookmarked-color);
+    }
+    &.unbookmarked {
+        color: var(--deleted-color);
+    }
+    &.enabled {
+        color: var(--icon-enabled-color);
+    }
+}
+
+
+.bookmark-list {
+    font-weight: bold;
+
+    .word {
+        font-size : 0.45em;
+    }
+    .removed {
+        text-decoration: line-through;
+        font-style: italic;
+        color : var(--text-secondary-color);
+    }
+    .contents {
+        border-radius: 8px;
+    }
+    .contents:hover {
+        background-color : var(--background-accent-color);
+    }
+}
+
+.choice-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.5em;
+
+    .choice {
+        display: flex;
+        align-items: center;
+        margin : 2px 2px;
+        padding : 1px 6px;
+        width: 100%;
+
+        border-radius: 8px;
+        cursor: pointer;
+        
+        &:hover {
+            background-color : var(--background-accent-color);
+        }
+    }
+
+    &.correct .choice {
+        background-color : var(--correct-color);
+    }
+    &.incorrect .choice {
+        background-color : var(--incorrect-color);
+    }
+
+}
+
+.sub {
+    color: var(--text-secondary-color);
+    font-weight: 500;
+}

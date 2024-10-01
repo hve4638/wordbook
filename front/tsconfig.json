@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES2022",
         "lib": [
             "dom",
             "dom.iterable",
@@ -10,6 +10,9 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
+        "types" : [
+            "./src/global.d.ts"
+        ],
 
         // 타입 검사 옵션
         "strict": true,
@@ -37,10 +40,12 @@
             "components/*": ["components/*"],
             "context/*": ["context/*"],
             "data/*": ["data/*"],
+            "types/*": ["types/*"],
             "features/*": ["features/*"],
             "hooks/*": ["hooks/*"],
             "libs/*": ["libs/*"],
             "services/*": ["services/*"],
+            "api/*": ["api/*"],
             "utils/*": ["utils/*"],
             "pages/*": ["pages/*"]
         }

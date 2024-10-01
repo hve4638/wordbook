@@ -24,3 +24,8 @@ button:hover {
     background-color: white;
     cursor : pointer;
 }
+
+h2 {
+    margin: 0px;
+    padding: 0px;
+}

@@ -1,68 +1,132 @@
+import { useEffect, useState } from 'react';
+import { useContextForce, EventContext } from 'contexts';
+import LocalAPI from 'api/local'
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
-import GoogleFontIcon from 'components/GoogleFontIcon';
+import { WordData } from 'types/words';
 
-function SearchPage() {
+interface SearchPageProps {
+    wordData: WordData;
+}
+
+function SearchPage({wordData}:SearchPageProps) {
+    const eventContext = useContextForce(EventContext);
+    const [previousBookmarkAdded, setPreviousBookmarkAdded] = useState(false);
+    const [bookmarkAdded, setBookmarkAdded] = useState(false);
+
+    const backToHome = () => {
+        if (previousBookmarkAdded !== bookmarkAdded) {
+            if (bookmarkAdded) {
+                LocalAPI.addWord(wordData);
+            }
+            else {
+                LocalAPI.removeWord(wordData.word);
+            }
+        }
+
+        eventContext.popPage();
+    }
+
+    const toggleBookmark = async () => {
+        if (bookmarkAdded) {
+            setBookmarkAdded(false);
+        }
+        else {
+            setBookmarkAdded(true);
+        }
+    }
+
+    useEffect(() => {
+        LocalAPI
+            .getWord(wordData.word)
+            .then(result => {
+                if (result) {
+                    setBookmarkAdded(true);
+                    setPreviousBookmarkAdded(true);
+                }
+                else {
+                    setBookmarkAdded(false);
+                    setPreviousBookmarkAdded(false);
+                }
+            });
+    }, []);
+    
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.ctrlKey && event.key === 's') {
+                event.preventDefault();
+                toggleBookmark();
+            }
+            if (event.key === 'Escape') {
+                backToHome()
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    });
+
     return (
         <div
-            className='app-drag theme-dark column fill'
+            className='column fill'
+            style={{ position: 'relative' }}
         >
-            <div className='noflex row' style={{margin:'6px'}}>
-                <div className='flex'></div>
-                <div>
-                    <GoogleFontIconButton
-                        className='app-nodrag undraggable'
-                        value='menu'
-                    />
-                </div>
+            <div    
+                style={{
+                    fontSize: '0.8em',
+                    margin: '8px 16px 16px 16px',
+                    fontWeight: 'bold',
+                }}
+            >
+                {wordData.word}
             </div>
-            <div className='row main-center'>
-                <div
-                    className='app-nodrag row'
-                    style={{
-                        width: '80%',
-                        height: '1rem',
-                        margin: '8px',
-                    }}
-                >
-                    <input
-                        className='flex'
-                        style={{
-                            padding: '4px',
-                            fontSize: '0.5rem',
-                        }}
-                    />
-                    <button
-                        style={{
-                            marginLeft: '6px',
-                            width : '1rem',
-                            height : '1rem',
-                        }}
-                        onClick={
-                            async (e) => {
-                                const [err, result] = await window.electron.searchWord('1234');
-                                console.log(result);
-                            }
-                        }
-                    >
-                        <GoogleFontIcon
-                            style={{fontSize:'0.8rem'}}
-                            value='send'
-                        />
-                    </button>
-                </div>
+            <div className='column scrollbar meaning' style={{ overflowY: 'auto' }}>
+            {
+                wordData.data.map((result, index) => {
+                    return (
+                        <div
+                            key={index}
+                            className='app-nodrag'
+                            style={{ margin: '0px 16px', paddingLeft: '8px' }}
+                        >
+                            <span>
+                                {index + 1}. {result.to} [{result.fromType}]
+                            </span>
+                        </div>
+                    )
+                })
+            }
             </div>
-            <div id='loading' className='flex row center'></div>
-            <footer className='row noflex' style={{margin:'6px'}}>
-                <GoogleFontIconButton
-                    className='app-nodrag undraggable noflex'
-                    value='quiz'
-                />
-                <div className='flex'/>
-                <GoogleFontIconButton
-                    className='app-nodrag undraggable noflex'
-                    value='settings'
-                />
-            </footer>
+
+
+            <GoogleFontIconButton
+                className='app-nodrag undraggable fonticon clickable'
+                style={{
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    margin: '4px'
+                }}
+                value='arrow_back'
+                onClick={() => backToHome()}
+            />
+            <GoogleFontIconButton
+                className={
+                    'app-nodrag undraggable fonticon clickable'
+                    + (bookmarkAdded ? ' bookmarked' : '')
+                }
+                style={{
+                    position: 'absolute',
+                    bottom: '0px',
+                    right: '0px',
+                    margin: '4px',
+                    padding: '2px',
+                    fontSize: '0.9em'
+                }}
+                value={bookmarkAdded ? 'bookmark_added' : 'bookmark'}
+                onClick={() => toggleBookmark()}
+            />
         </div>
     )
 }

@@ -7,8 +7,6 @@
         
         "target": "es2020",
         "module": "CommonJS",
-
-        //"rootDir": "./",
         
         "moduleResolution": "node",
 
