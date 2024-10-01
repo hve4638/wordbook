@@ -5,7 +5,7 @@
     "scripts": {
         "start": "yarn start:dev",
         "start:dev": "concurrently \"yarn electron:dev\" \"yarn front\"",
-        "start:release": "cd electron && yarn start:release",
+        "start:release": "yarn front:build && yarn front:commit && cd electron && yarn start:release",
         "build": "yarn front:build && yarn front:commit && yarn electron:build",
         "electron:test": "cd electron && yarn test",
         "electron:dev": "wait-on http://localhost:3000 && cd electron && yarn start",
