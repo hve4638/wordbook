@@ -1,0 +1,41 @@
+:root {
+    font-size : 36px;
+}
+
+.theme-light {
+    --background-color: rgb(137, 174, 234);
+    --background-accent-color: rgb(111, 160, 238);
+    --border-color: rgb(255, 255, 255);
+    --title-color: rgb(59, 62, 68);
+    --icon-color: rgb(80, 87, 98);
+    --icon-hover-color: rgb(32, 43, 58);
+    --text-color: black;
+    --text-secondary-color: rgb(48, 48, 48);
+
+    --icon-disabled-color: rgb(108, 124, 149);
+    --icon-enabled-color: rgb(207, 226, 255);
+    
+    --background-correct-color: rgb(137, 234, 148);
+    --background-incorrect-color: rgb(238, 111, 111);
+    --correct-color: rgb(111, 238, 121);
+    --incorrect-color: rgb(238, 111, 111);
+
+    background-color: var(--background-color);
+    color : var(--text-color);
+}
+
+.theme-dark {
+    --background-color: rgb(30, 29, 27);
+    --border-color: rgb(118, 118, 118);
+    
+    --title-color: rgb(196, 196, 196);
+    --icon-color: rgb(153, 153, 153);
+    --text-color: white;
+    --text-secondary-color: rgb(180, 180, 172);
+    
+    --correct-color: #00FF00;
+    --incorrect-color: #FF0000;
+    
+    background-color: var(--background-color);
+    color : var(--text-color);
+}

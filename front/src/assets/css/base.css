@@ -1,0 +1,48 @@
+html {
+    font-family: 'NanumGothic', sans-serif;
+}
+
+body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100vw;
+    height: 100vh;
+}
+
+input {
+    border-radius: 8px;
+    width: auto;
+}
+
+button {
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+h2 {
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: var(--title-color);
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.meaning {
+    font-size: 0.5em;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}

@@ -3,14 +3,26 @@
     "version": "0.1.0",
     "description": "",
     "scripts": {
-        "electron": "wait-on http://localhost:3000 && cd electron && yarn start",
-        "front": "cd front && yarn start:nobrowser",
-        "start": "concurrently \"yarn electron\" \"yarn front\""
+        "start": "yarn start:dev",
+        "start:dev": "concurrently \"yarn electron:dev\" \"yarn front\"",
+        "start:release": "yarn front:build && yarn front:commit && cd electron && yarn start:release",
+        "build": "yarn front:build && yarn front:commit && yarn electron:build",
+        "electron:test": "cd electron && yarn test",
+        "electron:dev": "wait-on http://localhost:3000 && cd electron && yarn start",
+        "electron:build": "cd electron && yarn build",
+        "front": "cd front && cross-env REACT_APP_DEV=TRUE yarn start:nobrowser",
+        "front:build": "cd front && yarn build",
+        "front:commit": "node utils/cp front/build electron/static",
+        "test": "echo use 'yarn electron:test' instead"
     },
     "author": "Hve",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "concurrently": "^9.0.1",
+        "cross-env": "^7.0.3",
         "wait-on": "^8.0.1"
+    },
+    "dependencies": {
+        "auto-launch": "^5.0.6"
     }
 }
