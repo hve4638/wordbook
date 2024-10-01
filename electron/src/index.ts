@@ -38,7 +38,6 @@ function createWindow() {
             console.log('F11 is pressed');
             win.webContents.toggleDevTools();
         });
-    
     }
     else {
         const file = path.join(__dirname, '../build/index.html');
