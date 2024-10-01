@@ -8,7 +8,8 @@ import Wordbook from './wordbook';
 const dbPath = path.join(baseDirectoryPath, 'word.db');
 const wordbookDB = new Wordbook(dbPath);
 
-const faviconPath = path.join(__dirname, '../build/favicon.ico');
+const entrypoint = path.join(__dirname, '../static/index.html');
+const faviconPath = path.join(__dirname, '../static/favicon.ico');
 
 initIPC({wordbookDB: wordbookDB});
 
@@ -40,8 +41,7 @@ function createWindow() {
         });
     }
     else {
-        const file = path.join(__dirname, '../build/index.html');
-        win.loadURL(`file://${file}`);
+        win.loadURL(`file://${entrypoint}`);
     }
     Menu.setApplicationMenu(null);
 

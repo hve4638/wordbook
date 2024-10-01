@@ -12,7 +12,7 @@
         "electron:build": "cd electron && yarn build",
         "front": "cd front && cross-env REACT_APP_DEV=TRUE yarn start:nobrowser",
         "front:build": "cd front && yarn build",
-        "front:commit": "node utils/cp front/build electron/build",
+        "front:commit": "node utils/cp front/build electron/static",
         "test": "echo use 'yarn electron:test' instead"
     },
     "author": "Hve",

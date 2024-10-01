@@ -33,9 +33,9 @@
         "productName": "Wordbook",
         "appId": "com.hve.wordbook",
         "extends": null,
-        "icon": "./build/favicon.ico",
+        "icon": "./static/favicon.ico",
         "files": [
-            "build/**/**",
+            "static/**/**",
             "compiled/**/*",
             "node_modules/**/*",
             "package.json"
