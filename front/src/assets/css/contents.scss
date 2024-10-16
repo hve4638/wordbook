@@ -33,11 +33,14 @@
     .word {
         font-size : 0.45em;
     }
+    .score {
+        color : var(--text-secondary-color);
+    }
     .removed {
         text-decoration: line-through;
         font-style: italic;
-        color : var(--text-secondary-color);
-    }
+        color 
+    : var(--text-secondary-color);}
     .contents {
         border-radius: 8px;
     }

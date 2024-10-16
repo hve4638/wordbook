@@ -1,7 +1,18 @@
-import type { WordData, WordMeaning, WordSelectCondition } from 'types/words';
 import { IPCError } from './errors';
 
 class ElectronIPC {
+    static async openBrowser(url:string) {
+        const [err] = await window.electron.openBrowser(url);
+        if (err) throw new IPCError(err.message);
+    }
+
+    static async searchWord(word:string): Promise<WordMeaning[]|null> {
+        const [err, data] = await window.electron.searchWord(word);
+        if (err) throw new IPCError(err.message);
+        
+        return data;
+    }
+    
     static async getWord(word:string): Promise<WordData|null> {
         const [err, data] = await window.electron.getWord(word);
         if (err) {
@@ -12,15 +23,8 @@ class ElectronIPC {
         }
     }
 
-    static async searchWord(word:string): Promise<WordMeaning[]|null> {
-        const [err, data] = await window.electron.searchWord(word);
-        if (err) throw new IPCError(err.message);
-        
-        return data;
-    }
-
     static async addWord(wordData:WordData) {
-        const [err, id] = await window.electron.addWord(wordData);
+        const [err] = await window.electron.addWord(wordData);
         if (err) throw new IPCError(err.message);
     }
 
@@ -29,17 +33,16 @@ class ElectronIPC {
         if (err) throw new IPCError(err.message);
     }
 
-    static async getLatestWords(offset:number, limit:number): Promise<WordData[]> {
-        const [err, data] = await window.electron.getLatestWords(offset, limit);
-        if (err) throw new IPCError(err.message);
-        
-        return data;
-    }
-
-    static async getWords(offset:number, limit:number, condition:WordSelectCondition): Promise<WordData[]> {
-        const [err, words] = await window.electron.getWords(offset, limit, condition);
+    static async getWords(
+        conditions:WordSelectCondition[],
+        option:WordSelectOption = {
+            order: 'sequence'
+        }
+    ): Promise<WordData[]> {
+        const [err, words] = await window.electron.getWords(conditions, option);
         if (err) throw new IPCError(err.message);
 
+        console.log(words);
         return words;
     }
 

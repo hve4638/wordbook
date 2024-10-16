@@ -1,28 +1,14 @@
-import type { WordData } from 'types/words';
-import type { WordSelectCondition } from 'api/local/types'
+import '../../shared/ipctype.d.ts';
 
 declare global {
-
     interface Window {
-        electron: {
-            echoSync: (message:string) => [Error|null, string],
-            searchWord: (word:string) => Promise<[Error|null, WordMeaning[]]>,
-    
-            addWord: (wordData:WordData) => Promise<[Error|null, number]>,
-            removeWord: (word:string) => Promise<[Error|null]>,
-            getWord: (word:string) => Promise<[Error|null, WordData]>,
-            getWords: (offset:number, limit:number, condition:WordSelectCondition) => Promise<[Error|null, WordData[]]>,
-            
-            getLatestWords: (offset:number, limit:number) => Promise<[Error|null, WordData[]]>,
-
-            addWordscoreCorrect: (word:string) => Promise<[Error|null]>,
-            addWordscoreIncorrect: (word:string) => Promise<[Error|null]>,
-    
-            onVisible: (listener:(event)=>void) => void,
-            onHide: (listener:(event)=>void) => void,
-            onReceiveClipboard: (listener:(event, clipboard:string, force:boolean)=>void) => void,
-        };
+        electron: IPC_APIS;
     }
+
+    type WordData = import('../../shared/ipctype.d.ts').WordData;
+    type WordMeaning = import('../../shared/ipctype.d.ts').WordMeaning;
+    type WordSelectCondition = import('../../shared/ipctype.d.ts').WordSelectCondition;
+    type WordSelectOption = import('../../shared/ipctype.d.ts').WordSelectOption;
 }
 
 declare module '*.png' {

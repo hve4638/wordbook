@@ -1,5 +1,4 @@
 import React, { useState, createContext, useEffect, ReactElement } from 'react';
-import type { WordData } from 'types/words';
 import { SetState } from './types';
 
 interface ConfigContextType {

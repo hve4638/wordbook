@@ -1,37 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import ipcping from '../ipcPing';
+import { ipcping } from '../ipc';
 
-type WordData = {
-    id: number,
-    word: string,
-    data: object,
-}
-
-type WordSelectCondition = {
-    lessQuizFrequency?: boolean;
-    moreQuizFrequency?: boolean;
-
-    lessQuizIncorrect?: boolean;
-    moreQuizIncorrect?: boolean;
-}
-
-const api = {
+const api:IPC_APIS = {
     echoSync: (message:string) => ipcRenderer.invoke(ipcping.ECHO_SYNC, message),
     searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
+    openBrowser: (url:string) => ipcRenderer.invoke(ipcping.OPEN_BROWSER, url),
 
     addWord: (wordData:WordData) => ipcRenderer.invoke(ipcping.ADD_WORD, wordData),
     removeWord: (word:string) => ipcRenderer.invoke(ipcping.REMOVE_WORD, word),
     getWord: (word:string) => ipcRenderer.invoke(ipcping.GET_WORD, word),
-    getWords: (offset:number, limit:number, condition:WordSelectCondition) => ipcRenderer.invoke(ipcping.GET_WORDS, offset, limit, condition),
+    getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ipcRenderer.invoke(ipcping.GET_WORDS, conditions, option),
 
-    getLatestWords: (offset:number, limit:number) => ipcRenderer.invoke(ipcping.GET_LATEST_WORDS, offset, limit),
     addWordscoreCorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_CORRECT, word),
     addWordscoreIncorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_INCORRECT, word),
     
 
     onVisible: (listener:(event)=>void) => ipcRenderer.on(ipcping.ON_VISIBLE, listener),
     onHide: (listener:(event)=>void) => ipcRenderer.on(ipcping.ON_HIDE, listener),
-    onReceiveClipboard: (listener:(event, clipboard:string)=>void) => ipcRenderer.on(ipcping.ON_RECEIVE_CLIPBOARD, listener),
+    onReceiveClipboard: (listener:(event, clipboard:string, force:boolean)=>void) => ipcRenderer.on(ipcping.ON_RECEIVE_CLIPBOARD, listener),
 };
 
 contextBridge.exposeInMainWorld('electron', api);

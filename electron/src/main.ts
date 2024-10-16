@@ -1,17 +1,21 @@
 import path from 'node:path';
 import { app, BrowserWindow, Menu, shell, globalShortcut, Tray, clipboard } from 'electron';
-import { initIPC } from './ipcHandle'
-import ipcPing from './ipcPing';
+import { ipcping, initIPC } from './ipc';
 import { baseDirectoryPath } from './storagepath';
 import Wordbook from './wordbook';
+import { WordReference } from './services/dict';
 
 const dbPath = path.join(baseDirectoryPath, 'word.db');
 const wordbookDB = new Wordbook(dbPath);
+const wordReference = new WordReference();
 
 const entrypoint = path.join(__dirname, '../static/index.html');
 const faviconPath = path.join(__dirname, '../static/favicon.ico');
 
-initIPC({wordbookDB: wordbookDB});
+initIPC({
+    wordbook: wordbookDB,
+    wordReference: wordReference,
+});
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -29,7 +33,7 @@ function createWindow() {
             nodeIntegration: true,
             contextIsolation: true
         }
-    })
+    });
 
     if (process.env['ELECTRON_DEV'] === 'TRUE') {
         win.loadURL('http://localhost:3000');
@@ -48,21 +52,21 @@ function createWindow() {
     globalShortcut.register('Control+E', () => {
         if (win.isVisible()) {
             win.hide();
-            win.webContents.send(ipcPing.ON_HIDE);
+            win.webContents.send(ipcping.ON_HIDE);
         }
         else {
             win.show();
-            win.webContents.send(ipcPing.ON_VISIBLE);
+            win.webContents.send(ipcping.ON_VISIBLE);
         }
     });
 
     globalShortcut.register('Control+Shift+E', () => {
         const clipboardText = clipboard.readText();
-        win.webContents.send(ipcPing.ON_RECEIVE_CLIPBOARD, clipboardText, !win.isVisible());
+        win.webContents.send(ipcping.ON_RECEIVE_CLIPBOARD, clipboardText, !win.isVisible());
 
         if (!win.isVisible()) {
             win.show();
-            win.webContents.send(ipcPing.ON_VISIBLE);
+            win.webContents.send(ipcping.ON_VISIBLE);
         }
     });
 
@@ -82,7 +86,7 @@ function createTrayIcon(win:BrowserWindow) {
     tray.on('double-click', () => {
         if (!win.isVisible()) {
             win.show();
-            win.webContents.send(ipcPing.ON_VISIBLE);
+            win.webContents.send(ipcping.ON_VISIBLE);
         }
     });
 

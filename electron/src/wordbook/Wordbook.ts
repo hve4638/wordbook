@@ -3,12 +3,16 @@ import * as path from 'node:path';
 import Database from 'better-sqlite3';
 import {SqliteError} from 'better-sqlite3';
 import {WordbookError} from './errors';
-import { WordSelectCondition } from './types';
+import WordbookQueryBuilder from './WordbookQueryBuilder';
 
-type WordData = {
-    id:number,
-    word:string,
-    data:string
+type DBWordDataRow = {
+    id : number,
+    word : string,
+    data : string,
+    total:number,
+    correct:number,
+    incorrect:number
+    incorrect_rate:number,
 }
 
 type Score = {
@@ -20,6 +24,7 @@ type Score = {
 class Wordbook {
     #path:string;
     #db:Database;
+    #queryBuilder = new WordbookQueryBuilder()
 
     constructor(target:string) {
         this.#path = target;
@@ -30,20 +35,14 @@ class Wordbook {
             throw new Error(`Failed to open database '${path}' : ${e.message}`);
         }
         
-        this.#db.exec(`
-            CREATE TABLE IF NOT EXISTS Wordbook (
-                id INTEGER PRIMARY KEY,
-                word TEXT NOT NULL UNIQUE,
-                data TEXT NOT NULL,
-                added_date INTEGER NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS QuizScore (
-                word TEXT PRIMARY KEY,
-                total INTEGER NOT NULL DEFAULT 0,
-                correct INTEGER NOT NULL DEFAULT 0,
-                incorrect INTEGER NOT NULL DEFAULT 0
-            );
-        `);
+        const builder = this.#queryBuilder;
+        const query = `
+            ${ builder.createTableWordbookQuery() }
+            ${ builder.createTableQuizScoreQuery() }
+            ${ builder.createViewWordbookQuery() }
+        `;
+        
+        this.#db.exec(query);
     }
 
     /**
@@ -102,174 +101,193 @@ class Wordbook {
         transaction();
     }
 
-    get(word:string):WordData|undefined {
-        const select = this.#db.prepare(
-            "SELECT * FROM Wordbook WHERE word = $word LIMIT 1"
-        );
-        const result = select.all({word});
-        if (result.length === 0) {
-            return undefined;
-        }
-        else {
-            return result[0];
-        }
-    }
-    
-    getLatest(offset=0, limit=1000):WordData[] {
-        const select = this.#db.prepare(
-            'SELECT * FROM Wordbook ORDER BY added_date DESC LIMIT $limit OFFSET $offset'
-        );
-        const data = select.all({offset, limit});
-
-        this.#parsedWordDataMeaning(data);
-        return data;
-    }
-
-    getOldest(offset=0, limit=1000):WordData[] {
-        const select = this.#db.prepare(
-            'SELECT * FROM Wordbook ORDER BY id ASC LIMIT $limit OFFSET $offset'
-        );
-        return select.all({offset, limit});
-    }
-
     resetScore(word:string) {
         const query = this.#db.prepare(
             'UPDATE QuizScore SET total = 0, correct = 0, incorrect = 0 WHERE word = $word'
         );
         query.run({word});
     }
-    
-    addWordscoreCorrect(word:string) {
+
+    /**
+     * 퀴즈 정답수 증가
+     */
+    addWordCorrectCount(word:string) {
         const query = this.#db.prepare(
-            'UPDATE QuizScore SET total = total + 1, correct = correct + 1 WHERE word = $word'
+            `
+            UPDATE QuizScore
+            SET total = total + 1, correct = correct + 1
+            WHERE word = $word
+            `
         );
         query.run({word});
     }
 
-    addWordscoreIncorrect(word:string) {
+    /**
+     * 퀴즈 오답수 증가
+     */
+    addWordIncorrectCount(word:string) {
         const query = this.#db.prepare(
-            'UPDATE QuizScore SET total = total + 1, incorrect = incorrect + 1 WHERE word = $word'
+            `
+            UPDATE QuizScore
+            SET total = total + 1, incorrect = incorrect + 1
+            WHERE word = $word
+            `
         );
         query.run({word});
     }
 
-    getMoreIncorrect(offset=0, limit=1000):WordData[] {
+    /**
+     * Wordbook DB에서 단어를 검색해 반환
+     * 
+     * @returns 단어가 존재하지 않으면 undefined 반환
+    */
+    getWord(word:string):WordData|undefined {
         const select = this.#db.prepare(
             `
-            SELECT id, Wordbook.word, data
-            FROM Wordbook
-            JOIN QuizScore
-            ON Wordbook.word = QuizScore.word
-            ORDER BY QuizScore.incorrect DESC
-            LIMIT $limit OFFSET $offset
+            SELECT *
+            FROM view_Wordbook
+            WHERE word = $word
+            LIMIT 1
             `
         );
-        return select.all({offset, limit});
-    }
+        const result = select.all({word});
 
-    getLessIncorrect(offset=0, limit=1000):WordData[] {
-        const select = this.#db.prepare(
-            `
-            SELECT id, Wordbook.word, data
-            FROM Wordbook
-            JOIN QuizScore
-            ON Wordbook.word = QuizScore.word
-            ORDER BY QuizScore.incorrect ASC
-            LIMIT $limit OFFSET $offset
-            `
-        );
-        return select.all({offset, limit});
-    }
-
-    getMoreFrequency(offset=0, limit=1000):WordData[] {
-        const select = this.#db.prepare(
-            `
-            SELECT id, Wordbook.word, data
-            FROM Wordbook
-            JOIN QuizScore
-            ON Wordbook.word = QuizScore.word
-            ORDER BY QuizScore.total DESC
-            LIMIT $limit OFFSET $offset
-            `
-        );
-        return select.all({offset, limit});
-    }
-
-    getLessFrequency(offset=0, limit=1000):WordData[] {
-        const select = this.#db.prepare(
-            `
-            SELECT id, Wordbook.word, data
-            FROM Wordbook
-            JOIN QuizScore
-            ON Wordbook.word = QuizScore.word
-            ORDER BY QuizScore.total ASC
-            LIMIT $limit OFFSET $offset
-            `
-        );
-        return select.all({offset, limit});
-    }
-
-    getWords(offset=0, limit=0, condition:WordSelectCondition):WordData[] {
-        let totalOrder:string;
-        if (condition.moreQuizFrequency) totalOrder = 'DESC';
-        else if (condition.lessQuizFrequency) totalOrder = 'ASC';
-        else totalOrder = 'ASC';
-
-        let incorrectOrder:string;
-        if (condition.moreQuizIncorrect) incorrectOrder = 'DESC';
-        else if (condition.lessQuizIncorrect) incorrectOrder = 'ASC';
-        else incorrectOrder = 'ASC';
-
-        const query = `
-            SELECT id, Wordbook.word, data
-            FROM Wordbook
-            JOIN QuizScore
-            ON Wordbook.word = QuizScore.word
-            ORDER BY QuizScore.incorrect ${totalOrder}, QuizScore.total ${incorrectOrder}
-            LIMIT $limit OFFSET $offset
-        `;
-
-        const select = this.#db.prepare(query);
-        const data = select.all({
-            offset,
-            limit
-        }) as WordData[];
-
-        if (condition.shuffle) {
-            this.#shuffle(data);
-        }
-
-        this.#parsedWordDataMeaning(data);
-
-        return data;
-    }
-
-    #shuffle(data:any[]) {
-        for (let i = data.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            
-            [data[i], data[j]] = [data[j], data[i]];
-        }
-    }
-
-    #parsedWordDataMeaning(target:WordData[]) {
-        for (const data of target) {
-            data.data = JSON.parse(data.data);
-        }
-    }
-
-    getScore(word:string):Score|undefined {
-        const query = this.#db.prepare(
-            'SELECT total, correct, incorrect FROM QuizScore WHERE word = $word'
-        );
-
-        const result = query.all({word});
         if (result.length === 0) {
             return undefined;
         }
         else {
-            return result[0];
+            this.#parseMultipleWordDataMeaning(result);
+
+            return result[0] as WordData;
         }
+    }
+    
+    /**
+     * Wordbook DB에서 조건에 맞는 Word 목록을 검색해 목록을 반환
+     */
+    getWords(
+        conditions:WordSelectCondition[],
+        option:WordSelectOption = { 
+            order: 'sequence'
+        }
+    ):WordData[] {
+        const builder = this.#queryBuilder;
+        const wordSet = new Set<string>();
+        const words:DBWordDataRow[][] = [];
+        let result:WordData[] = [];
+        
+        const tryAddWordToResult = (row:DBWordDataRow) => {
+            if (!wordSet.has(row.word)) {
+                this.#parseSingleWordDataMeaning(row);
+                
+                result.push(row as unknown as WordData);
+                wordSet.add(row.word);
+            }
+        }
+
+        for (const condition of conditions) {
+            const query = builder.selectWordsQuery(condition)
+            const select = this.#db.prepare(query);
+            const rows = select.all() as DBWordDataRow[];
+            words.push(rows);
+            
+            if (condition.shuffle) {
+                this.#shuffle(rows, condition.shuffleGroupSize);
+            }
+        }
+
+        if (words.length === 0) {
+            // nothing to do
+        }
+        else if (words.length === 1) {
+            this.#parseMultipleWordDataMeaning(words[0]);
+            result = words[0] as unknown as WordData[];
+        }
+        else if (option.order === 'sequence') {
+            for (const rows of words) {
+                for (const row of rows) {
+                    tryAddWordToResult(row);
+                }
+            }
+        }
+        else if (option.order === 'interleave') {
+            let index = 0;
+            let currentWords = [...words];
+            let nextWords = currentWords;
+            while (currentWords.length > 0) {
+                for (const rows of currentWords) {
+                    if (index >= rows.length) {
+                        if (nextWords === currentWords) {
+                            nextWords = [...currentWords];
+                        }
+
+                        const i = nextWords.indexOf(rows);
+                        if (i > -1) {
+                            nextWords.splice(i, 1);
+                        }
+                        continue;
+                    }
+
+                    tryAddWordToResult(rows[index]);
+                }
+                if (nextWords !== currentWords) {
+                    currentWords = nextWords;
+                }
+
+                index++;
+            }
+        }
+
+        return result;
+    }
+
+    #shuffle(data:any[], shuffleGroupSize?:number) {
+        shuffleGroupSize ??= data.length;
+
+        for (let i = 0; i < data.length; i += shuffleGroupSize) {
+            this.#partShuffle(data, i, Math.min(i + shuffleGroupSize, data.length));
+        }
+    }
+
+    /**
+     * Fisher-Yates 셔플 알고리즘
+     */
+    #partShuffle(data:any[], start:number, end:number) {
+        const size = end - start;
+        for (let i = size - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            
+            [data[start+i], data[start+j]] = [data[start+j], data[start+i]];
+        }
+    }
+    
+    #parseSingleWordDataMeaning(target:DBWordDataRow) {
+        target.data = JSON.parse(target.data) as any;
+    }
+
+    /**
+     * DB에서 가져온 Wordbook.data를 JSON으로 변환
+     * 
+     * 인자로 가져온 DBWordDataRow 타입을 WordData 포맷으로 변환함
+     */
+    #parseMultipleWordDataMeaning(target:DBWordDataRow[]) {
+        for (const data of target) {
+            data.data = JSON.parse(data.data) as any;
+        }
+    }
+
+    getWordCount(option:WordSelectOption, conditions:WordSelectCondition[]):number {
+        const builder = this.#queryBuilder;
+        const subqueries:string[] = [];
+        for (const condition of conditions) {
+            subqueries.push(builder.selectWordsQuery(condition));
+        }
+
+        const query = builder.selectCountFromSubquery(subqueries);
+        const select = this.#db.prepare(query);
+        const data = select.all();
+
+        return data[0];
     }
 
     clear() {

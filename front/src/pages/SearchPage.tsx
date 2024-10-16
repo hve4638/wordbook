@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local'
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
-import { WordData } from 'types/words';
+import NaverDictIcon from 'assets/icon/naver-dict.svg';
 
 interface SearchPageProps {
     wordData: WordData;
@@ -99,7 +99,26 @@ function SearchPage({wordData}:SearchPageProps) {
             }
             </div>
 
-
+            <div
+                className='app-nodrag absolute'
+                style={{
+                    bottom: '0px',
+                    left: '0px',
+                    margin : '8px',
+                }}
+            >
+                <img
+                    className='clickable hover-animation'
+                    src='/icon/naver-dict.svg'
+                    alt='naver-dict'
+                    width='24px'
+                    onClick={
+                        ()=>{
+                            LocalAPI.openBrowser(`https://dict.naver.com/dict.search?query=${wordData.word}`);
+                        }
+                    }
+                />
+            </div>
             <GoogleFontIconButton
                 className='app-nodrag undraggable fonticon clickable'
                 style={{
