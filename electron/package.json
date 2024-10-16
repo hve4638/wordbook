@@ -1,6 +1,6 @@
 {
     "name": "wordbook-electron",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Simple Wordbook",
     "main": "compiled/main.js",
     "homepage": ".",
@@ -11,8 +11,7 @@
         "test2": "tsc && cross-env ELECTRON_RUN_AS_NODE=true electron ./node_modules/jest-cli/bin/jest.js",
         "test_jest": "tsc && yarn jest",
         "build": "tsc && cross-env ELECTRON_DEV=FALSE electron-builder",
-        "install:electron" : "yarn && .\\node_modules\\.bin\\electron-rebuild",
-        "c": "tsc"
+        "install:electron" : "yarn && .\\node_modules\\.bin\\electron-rebuild"
     },
     "author": "Hve",
     "license": "ISC",
