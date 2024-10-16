@@ -3,13 +3,19 @@ import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local';
 
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
-import { WordData } from 'types/words';
 import SearchPage from 'pages/SearchPage';
+
+const BookmarkOrder = {
+    LATEST: '추가 순',
+    INCORRECT: '오답률 순',
+} as const;
+type BookmarkOrder = typeof BookmarkOrder[keyof typeof BookmarkOrder];
 
 function BookmarkPage() {
     const eventContext = useContextForce(EventContext);
     const [bookmarkList, setBookmarkList] = useState<WordData[]>([]);
     const [unbookmarked, setUnbookmarked] = useState<{[word:string]:true}>({});
+    const [bookmarkOrder, setBookmarkOrder] = useState<BookmarkOrder>(BookmarkOrder.LATEST);
 
     const toogleBookmark = async (wordData:WordData) => {
         if (unbookmarked[wordData.word]) {
@@ -37,8 +43,18 @@ function BookmarkPage() {
     }
 
     useEffect(() => {
-        LocalAPI
-            .getLatestWords(0, 1000)
+        let promise:Promise<WordData[]>;
+        if (bookmarkOrder === BookmarkOrder.LATEST) {
+            promise = LocalAPI.getWords([{ latest: true }])
+        }
+        else if (bookmarkOrder === BookmarkOrder.INCORRECT) {
+            promise = LocalAPI.getWords([{ highQuizIncorrect: true }])
+        }
+        else {
+            return;
+        }
+
+        promise
             .then(result => {
                 setBookmarkList(result);
             })
@@ -46,7 +62,7 @@ function BookmarkPage() {
                 console.error(err);
                 setBookmarkList([]); 
             });
-    }, []);
+    }, [bookmarkOrder]);
     
     useEffect(() => {
         const onKeydown = (e: KeyboardEvent) => {
@@ -85,6 +101,24 @@ function BookmarkPage() {
                 >
                     word: {bookmarkList.length}
                 </span>
+                <div
+                    className='app-nodrag'
+                    style={{margin:'8px'}}
+                >
+                    <select
+                        onChange={(e)=>{
+                            setBookmarkOrder(e.target.value as BookmarkOrder);
+                        }}
+                    >
+                        {
+                            Object.values(BookmarkOrder).map((order, index) => {
+                                return (
+                                    <option key={index}>{order}</option>
+                                );
+                            })
+                        }
+                    </select>
+                </div>
             </span>
             <div
                 className='app-nodrag column scrollable scrollbar bookmark-list'
@@ -121,6 +155,16 @@ function BookmarkPage() {
                             </span>
                             <span></span>
                             <div className='flex'/>
+                            <span
+                                className={
+                                    `word score undraggable`
+                                }
+                                style={{
+                                    marginRight: '8px',
+                                }}
+                            >
+                                {`${wordData.correct} / ${wordData.incorrect}`}
+                            </span>
                             <GoogleFontIconButton
                                 className={
                                     'noflex fonticon clickable'

@@ -1,6 +1,7 @@
 const ping = {
     ECHO_SYNC : 'echo-sync',
     SEARCH_WORD_ENKO : 'search-word-enko',
+    OPEN_BROWSER : 'open-browser',
 
     ON_VISIBLE : 'on-visible',
     ON_HIDE : 'on-hide',

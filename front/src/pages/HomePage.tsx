@@ -4,7 +4,6 @@ import GoogleFontIcon from 'components/GoogleFontIcon';
 import { EventContext, useContextForce } from 'contexts';
 import { MemoryContext } from 'contexts';
 import LocalInteractive from 'api/local';
-import type { WordData } from 'types/words'
 import SearchPage from 'pages/SearchPage';
 import BookmarkPage from 'pages/BookmarkPage';
 import QuizPage from 'pages/QuizPage';
@@ -49,6 +48,9 @@ function HomePage() {
                     <GoogleFontIconButton
                         className='app-nodrag undraggable fonticon'
                         value='menu'
+                        onClick={()=>{
+                            LocalAPI.openBrowser('www.naver.com')
+                        }}
                     />
                 </div>
             </header>
@@ -105,11 +107,23 @@ function HomePage() {
                                 quizGenerator={
                                     new QuizGenerator({
                                         onPull(offset:number, limit:number) {
-                                            return LocalAPI.getWords(offset, limit, {
-                                                shuffle: true,
-                                                lessQuizFrequency: true,
-                                                moreQuizIncorrect: true,
-                                            });
+                                            return LocalAPI.getWords(
+                                                [{
+                                                    highFrequencyLimit: 5,
+                                                    lowQuizFrequency: true,
+                                                    shuffle: true,
+                                                    shuffleGroupSize: 5,
+                                                },
+                                                {
+                                                    lowQuizFrequency: true,
+                                                    highQuizIncorrect: true,
+                                                    shuffle: true,
+                                                    shuffleGroupSize: 5,
+                                                }],
+                                                {
+                                                    order: 'interleave'
+                                                }
+                                            );
                                         },
                                         onQuizCorrect(word:string) {
                                             LocalAPI.addWordScoreCorrect(word);

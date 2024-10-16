@@ -1,5 +1,3 @@
-import { WordData } from "types/words";
-
 export type QuizResult = {
     correct: boolean;
     correctIndex: number;

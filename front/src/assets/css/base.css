@@ -46,3 +46,11 @@ h2 {
 .absolute {
     position: absolute;
 }
+
+.hover-animation {
+    transition: transform 0.3s ease;
+}
+
+.hover-animation:hover {
+    transform : scale(0.9);
+}

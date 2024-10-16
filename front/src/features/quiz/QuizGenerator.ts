@@ -1,4 +1,3 @@
-import type { WordData } from 'types/words';
 import { shuffled } from 'utils/shuffle';
 import { IQuiz, QuizChoices, QuizResult } from './types';
 

@@ -28,5 +28,9 @@
         "allowUnreachableCode" : true, // 도달할 수 없는 코드 허용
         
         "skipLibCheck": true /* Skip type checking all .d.ts files. */
-    }
+    },
+    "include": [
+        "./src/**/*",
+        "./electron.d.ts"
+    ]
 }

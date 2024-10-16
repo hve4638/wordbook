@@ -1,4 +1,3 @@
-import Wordbook from "./Wordbook";
-export type { WordSelectCondition } from './types';
+import Wordbook from './Wordbook';
 
 export default Wordbook;

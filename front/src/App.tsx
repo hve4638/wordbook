@@ -4,7 +4,6 @@ import LocalAPI from 'api/local';
 
 import HomePage from './pages/HomePage';
 import SearchPage from 'pages/SearchPage';
-import { WordData } from 'types/words';
 
 const DEV_MODE = (process.env['REACT_APP_DEV'] === 'TRUE');
 
