@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local'
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
-import NaverDictIcon from 'assets/icon/naver-dict.svg';
+import NaverDictIcon from 'assets/icons/naver-dict.svg';
 
 interface SearchPageProps {
     wordData: WordData;
@@ -108,8 +108,8 @@ function SearchPage({wordData}:SearchPageProps) {
                 }}
             >
                 <img
-                    className='clickable hover-animation'
-                    src='/icon/naver-dict.svg'
+                    className='clickable hover-animation undraggable'
+                    src={NaverDictIcon}
                     alt='naver-dict'
                     width='24px'
                     onClick={

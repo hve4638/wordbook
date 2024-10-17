@@ -16,7 +16,7 @@ interface MemoryContextType {
 export const MemoryContext = createContext<MemoryContextType|null>(null);
 
 export function MemoryContextProvider({children}) {
-    const [currentWordData, setCurrentWordData] = useState<WordData>({id:0, word:'', data:[]});
+    const [currentWordData, setCurrentWordData] = useState<WordData>({id:0, word:'', data:[]} as any);
     const [visibleCount, setVisibleCount] = useState<number>(0);
     const [hideCount, setHideCount] = useState<number>(0);
     const [pageStack, setPageStack] = useState<ReactElement[]>([]);

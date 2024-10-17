@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { EventContext, MemoryContext, useContextForce } from 'contexts';
 import LocalAPI from 'api/local';
 
@@ -50,7 +50,7 @@ function App() {
                 window.removeEventListener('keydown', handleKeyDown);
             }
         }
-    }, []);
+    }, [eventContext, memoryContext]);
 
     return (
         <div
