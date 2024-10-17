@@ -1,4 +1,4 @@
-import React, { useState, createContext, useEffect, ReactElement, useContext } from 'react';
+import React, { createContext, ReactElement } from 'react';
 import { useContextForce } from './hook';
 import { MemoryContext } from './MemoryContext';
 

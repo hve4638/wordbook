@@ -43,11 +43,6 @@ export class QuizGenerator {
 
     async #pullWords() {
         if (this.#nopull) return [];
-        const selectCondition = {
-            shuffle: true,
-            lessQuizFrequency: true,
-            moreQuizIncorrect: true,
-        }
         
         let words:WordData[];
         words = await this.#actions.onPull(this.#pullOffset, this.#pullLimit) ?? [];
@@ -138,7 +133,6 @@ class Quiz implements IQuiz {
                         correctIndex: Number(i),
                         selectedIndex: index,
                     };
-                    break;
                 }
             }
         }
