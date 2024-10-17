@@ -14,6 +14,7 @@ export class QuizGenerator {
     #actions:QuizGeneratorActions;
     #currentIndex = 0;
     #words:WordData[] = [];
+    #lastQuiz?:Quiz;
 
     constructor(actions:QuizGeneratorActions) {
         this.#actions = actions;
@@ -27,6 +28,15 @@ export class QuizGenerator {
         return this.#words.length;
     }
 
+    async current():Promise<Quiz> {
+        if (this.#lastQuiz) {
+            return this.#lastQuiz;
+        }
+        else {
+            return this.next();
+        }
+    }
+
     async next():Promise<Quiz> {
         if (this.#currentIndex >= this.#words.length) {
             const pulled = await this.#pullWords();
@@ -36,9 +46,9 @@ export class QuizGenerator {
 
         const correct = this.#words[this.#currentIndex++];
         const incorrects = this.#getRandomWords(3, [correct.word], 10);
-        const quiz = new Quiz(correct, incorrects, this.#actions);
+        this.#lastQuiz = new Quiz(correct, incorrects, this.#actions);
 
-        return quiz;
+        return this.#lastQuiz;
     }
 
     async #pullWords() {
@@ -111,6 +121,11 @@ class Quiz implements IQuiz {
     get choices() {
         return this.#choices;
     }
+
+    get finished() {
+        return this.#alreadySelected;
+    }
+
     select(index:number):QuizResult|undefined {
         if (this.#alreadySelected) return;
         this.#alreadySelected = true;

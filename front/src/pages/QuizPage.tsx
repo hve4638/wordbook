@@ -47,11 +47,16 @@ function QuizPage({quizGenerator}:QuizPageProps) {
 
     useEffect(()=>{
         setCurrentQuizFinished(false);
-        quizGenerator.next()
+
+        // nextQuizPing === 0 페이지가 새로고쳐진 경우로, 마지막 쿼즈를 보여줌
+        // 이전 퀴즈가 존재하지 않으면 current()도 새 퀴즈를 생성함
+        const promise = nextQuizPing === 0 ? quizGenerator.current() : quizGenerator.next();
+        promise
             .then((nextQuiz)=>{
                 setQuiz(nextQuiz);
+                setCurrentQuizFinished(nextQuiz.finished);
                 setQuizChoices(nextQuiz.choices)
-                setCurrentHide(configContext.hideQuizChoices);
+                setCurrentHide(configContext.hideQuizChoices && !nextQuiz.finished);
             });
     }, [nextQuizPing]);
 
