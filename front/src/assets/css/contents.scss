@@ -83,3 +83,23 @@
     color: var(--text-secondary-color);
     font-weight: 500;
 }
+
+.meaning-container {
+    font-size: 0.5em;
+
+    .meaning:hover {
+        color : var(--text-meaning-hover-color);
+        cursor : pointer;
+    }
+
+    .priority {
+        color : var(--text-meaning-active-color);
+    }
+
+    .another-word {
+        font-size: 0.75em;
+        font-weight: bold;
+        align-self: flex-end;
+        color: var(--text-secondary-color);
+    }
+}

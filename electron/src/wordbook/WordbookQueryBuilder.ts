@@ -51,8 +51,8 @@ class WordbookQueryBuilder {
             CREATE TABLE IF NOT EXISTS Wordbook (
                 id INTEGER PRIMARY KEY,
                 word TEXT NOT NULL UNIQUE,
-                data TEXT NOT NULL,
-                added_date INTEGER NOT NULL
+                added_date INTEGER NOT NULL,
+                priority_meaning_indexes TEXT NOT NULL DEFAULT '[]'
             );
         `;
     }
@@ -66,6 +66,14 @@ class WordbookQueryBuilder {
             );
         `;
     }
+    createTableWordMeaningQuery():string {
+        return `
+            CREATE TABLE IF NOT EXISTS WordMeaning (
+                word TEXT PRIMARY KEY,
+                meaning TEXT NOT NULL
+            );
+        `;
+    }
     createViewWordbookQuery():string {
         return `
             CREATE VIEW IF NOT EXISTS view_Wordbook
@@ -74,6 +82,7 @@ class WordbookQueryBuilder {
                 Wordbook.word,
                 Wordbook.data,
                 Wordbook.added_date,
+                Wordbook.priority_meaning_indexes,
                 QuizScore.total,
                 QuizScore.correct,
                 QuizScore.incorrect,
@@ -82,7 +91,8 @@ class WordbookQueryBuilder {
                     ELSE 100.0 * QuizScore.incorrect / QuizScore.total
                 END as incorrect_rate
             FROM Wordbook
-            JOIN QuizScore ON Wordbook.word = QuizScore.word;
+            JOIN
+                QuizScore ON Wordbook.word = QuizScore.word;
         `;
     }
 

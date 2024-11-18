@@ -15,8 +15,10 @@ const ping = {
     GET_WORD : 'get-word',
     GET_WORDS : 'get-words',
 
+    UPDATE_WORD_MEANING_PRIORITY : 'update-word-meaning-priority',
+
     ADD_WORDSCORE_CORRECT : 'add-wordscore-correct',
     ADD_WORDSCORE_INCORRECT : 'add-wordscore-incorrect',
-}
+} as const;
 
 export default ping;

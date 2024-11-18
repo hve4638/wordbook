@@ -6,6 +6,7 @@ type WordData = {
     word : string,
     data : WordMeaning[],
     added_date : number,
+    priority_meaning_indexes : number[],
     correct : number,
     incorrect: number,
     total: number
@@ -64,7 +65,9 @@ type IPC_APIS = {
     addWord: (wordData:WordData) => ElectronResult<number>,
     removeWord: (word:string) => ElectronNoResult,
     getWord: (word:string) => ElectronResult<WordData>,
-    getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ElectronResult<WordData[]>,
+    getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ElectronResult<WordData[]>
+
+    updateWordMeaningPriority: (word:string, meaningIndexes:number[]) => ElectronNoResult,
 
     addWordscoreCorrect: (word:string) => ElectronNoResult,
     addWordscoreIncorrect: (word:string) => ElectronNoResult,

@@ -11,6 +11,9 @@ export interface IPCHandleDependencies {
 
 type IPC_APIS_OMMITED = 'onVisible'|'onHide'|'onReceiveClipboard';
 
+/**
+ * IPC API Handler 함수 반환
+ */
 export function getIPCHandler({
     wordbook,
     wordReference
@@ -50,6 +53,10 @@ export function getIPCHandler({
         },
         getWords: async (conditions:WordSelectCondition[], option:WordSelectOption) => {
             return [null, wordbook.getWords(conditions)];
+        },
+        updateWordMeaningPriority: async (word:string, meaningIndexes:number[]) => {
+            wordbook.updateWordMeaningPriority(word, meaningIndexes);
+            return [null];
         },
 
         addWordscoreCorrect: async (word:string) => {

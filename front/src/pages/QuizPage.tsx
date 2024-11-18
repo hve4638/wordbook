@@ -4,19 +4,65 @@ import GoogleFontIconButton from 'components/GoogleFontIconButton';
 import { QuizGenerator, IQuiz, QuizChoices } from 'features/quiz';
 import SearchPage from 'pages/SearchPage';
 import GoogleFontIcon from 'components/GoogleFontIcon';
+import LocalAPI from 'api/local';
 
-interface QuizPageProps {
-    quizGenerator: QuizGenerator;
+let lastQuizGenerator:QuizGenerator;
+
+const resetQuizGenerator = () => {
+    lastQuizGenerator = new QuizGenerator({
+        onPull(offset:number, limit:number) {
+            return LocalAPI.getWords(
+                [
+                    {
+                        // 등장 횟수 10회 이하인 단어 선택
+                        // 낮은 등장 빈도 순 정렬 후 5개 단위 셔플
+                        highFrequencyLimit: 10,
+                        lowQuizFrequency: true,
+                        shuffle: true,
+                        shuffleGroupSize: 5,
+                    },
+                    {
+                        // 오답률 10% 이상인 단어 선택
+                        // 낮은 등장 빈도 & 오답률 높은 순 정렬 후 5개 단위 셔플
+                        lowIncorrectRateLimit: 10,
+                        lowQuizFrequency: true,
+                        highQuizIncorrect: true,
+                        shuffle: true,
+                        shuffleGroupSize: 5,
+                    }
+                ],
+                {
+                    // 두 그룹을 번갈아가며 단어 선택
+                    order: 'interleave'
+                }
+            );
+        },
+        onQuizCorrect(word:string) {
+            LocalAPI.addWordScoreCorrect(word);
+        },
+        onQuizIncorrect(word:string) {
+            LocalAPI.addWordScoreIncorrect(word);
+        },
+    });
+    return lastQuizGenerator;
 }
+resetQuizGenerator();
 
-function QuizPage({quizGenerator}:QuizPageProps) {
+function QuizPage() {
     const configContext = useContextForce(ConfigContext);
     const eventContext = useContextForce(EventContext);
+
+    const [quizGenerator, setQuizGenerator] = useState(lastQuizGenerator);
     const [currentQuizFinished, setCurrentQuizFinished] = useState(false);
     const [nextQuizPing, setNextQuizPing] = useState(0);
     const [quiz, setQuiz] = useState<IQuiz|undefined>();
     const [quizChoices, setQuizChoices] = useState<QuizChoices>([]);
     const [currentHide, setCurrentHide] = useState(false);
+
+    const makeNewQuiz = () => {
+        const newQuizGenerator = resetQuizGenerator();
+        setQuizGenerator(newQuizGenerator);
+    }
 
     const nextQuiz = () => {
         setNextQuizPing((value)=>value+1);
@@ -58,7 +104,7 @@ function QuizPage({quizGenerator}:QuizPageProps) {
                 setQuizChoices(nextQuiz.choices)
                 setCurrentHide(configContext.hideQuizChoices && !nextQuiz.finished);
             });
-    }, [nextQuizPing]);
+    }, [nextQuizPing, quizGenerator]);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -108,7 +154,7 @@ function QuizPage({quizGenerator}:QuizPageProps) {
             style={{ position: 'relative' }}
         >
             <div
-                className='absolute'
+                className='absolute row'
                 style={{
                     top: '0px', left: '0px',
                     alignItems: 'flex-end',
@@ -124,6 +170,18 @@ function QuizPage({quizGenerator}:QuizPageProps) {
                 >
                     ({quizGenerator.currentIndex}/{quizGenerator.pulledWordsLength})
                 </span>
+                
+                <GoogleFontIconButton
+                    className='app-nodrag undraggable fonticon clickable'
+                    style={{
+                        margin: '4px',
+                        top: '0px',
+                        right: '0px',
+                        fontSize: '0.8em'
+                    }}
+                    value='restart_alt'
+                    onClick={() => makeNewQuiz()}
+                />
             </div>
 
             {
@@ -257,6 +315,18 @@ function QuizPage({quizGenerator}:QuizPageProps) {
                     }}
                     value='arrow_right'
                     onClick={() => nextQuiz()}
+                />
+            }
+            {
+                !currentQuizFinished &&
+                <GoogleFontIconButton
+                    className='app-nodrag undraggable fonticon clickable absolute'
+                    style={{
+                        margin: '4px',
+                        bottom: '0px',
+                        right: '0px'
+                    }}
+                    value='arrow_right'
                 />
             }
         </div>

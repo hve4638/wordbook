@@ -15,7 +15,7 @@ export class QuizGenerator {
     #currentIndex = 0;
     #words:WordData[] = [];
     #lastQuiz?:Quiz;
-
+    
     constructor(actions:QuizGeneratorActions) {
         this.#actions = actions;
     }
@@ -105,13 +105,28 @@ class Quiz implements IQuiz {
     constructor(correct:WordData, incorrects:WordData[], actions:QuizGeneratorActions) {
         this.#correct = correct;
         this.#incorects = incorrects;
+
+        const getTo = (wordData:WordData) => this.#getPriorityWordMeaning(wordData).to;
         this.#choices = [
-            { meaning: correct.data[0].to, correct: true },
-            ...incorrects.map((word) => { return {meaning:word.data[0].to, correct: false } })
+            { meaning: getTo(correct), correct: true },
+            ...incorrects.map((wordData) => { return {meaning: getTo(wordData), correct: false } })
         ];
         this.#actions = actions;
 
         shuffled(this.#choices);
+    }
+
+    #getPriorityWordMeaning(wordData:WordData) {
+        const indexes = wordData.priority_meaning_indexes;
+        if (indexes.length === 0) {
+            return wordData.data[0];
+        }
+        else {
+            const size = indexes.length;
+            const index = indexes[Math.floor(Math.random() * size)];
+
+            return wordData.data[index];
+        }
     }
 
     get correct() {

@@ -11,6 +11,8 @@ const api:IPC_APIS = {
     getWord: (word:string) => ipcRenderer.invoke(ipcping.GET_WORD, word),
     getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ipcRenderer.invoke(ipcping.GET_WORDS, conditions, option),
 
+    updateWordMeaningPriority: (word:string, meaningIndexes:number[]) => ipcRenderer.invoke(ipcping.UPDATE_WORD_MEANING_PRIORITY, word, meaningIndexes),
+
     addWordscoreCorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_CORRECT, word),
     addWordscoreIncorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_INCORRECT, word),
     

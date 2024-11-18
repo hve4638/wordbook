@@ -1,4 +1,4 @@
-import React, { useState, createContext, useEffect, ReactElement } from 'react';
+import React, { useState, createContext, ReactElement } from 'react';
 import { SetState } from './types';
 
 interface MemoryContextType {

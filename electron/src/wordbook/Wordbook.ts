@@ -10,15 +10,10 @@ type DBWordDataRow = {
     word : string,
     data : string,
     total:number,
+    priority_meaning_indexes:string,
     correct:number,
     incorrect:number
     incorrect_rate:number,
-}
-
-type Score = {
-    total:number,
-    correct:number,
-    incorrect:number
 }
 
 class Wordbook {
@@ -46,7 +41,7 @@ class Wordbook {
     }
 
     /**
-     * 단어 추가, 이미 단어가 존재한다면 WordbookError 발생
+     * 북마크 추가, 이미 단어가 존재한다면 WordbookError 발생
      * @param word
      * @param data
      */
@@ -99,6 +94,21 @@ class Wordbook {
         });
 
         transaction();
+    }
+
+    /**
+     * 
+     * @param word 
+     * @param indexes 
+     */
+    updateWordMeaningPriority(word:string, indexes:number[]) {
+        const query = `
+            UPDATE Wordbook
+            SET priority_meaning_indexes = $indexes
+            WHERE word = $word;
+        `;
+        const update = this.#db.prepare(query);
+        update.run({word, indexes:JSON.stringify(indexes)});
     }
 
     resetScore(word:string) {
@@ -263,16 +273,18 @@ class Wordbook {
     
     #parseSingleWordDataMeaning(target:DBWordDataRow) {
         target.data = JSON.parse(target.data) as any;
+        target.priority_meaning_indexes = JSON.parse(target.priority_meaning_indexes) as any;
     }
 
     /**
-     * DB에서 가져온 Wordbook.data를 JSON으로 변환
+     * DB에서 가져온 data, priority_meaning_indexes을 JSON으로 변환
      * 
      * 인자로 가져온 DBWordDataRow 타입을 WordData 포맷으로 변환함
      */
     #parseMultipleWordDataMeaning(target:DBWordDataRow[]) {
         for (const data of target) {
             data.data = JSON.parse(data.data) as any;
+            data.priority_meaning_indexes = JSON.parse(data.priority_meaning_indexes) as any;
         }
     }
 

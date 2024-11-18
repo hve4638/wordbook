@@ -3,6 +3,7 @@ import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local'
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
 import NaverDictIcon from 'assets/icons/naver-dict.svg';
+import GoogleFontIcon from 'components/GoogleFontIcon';
 
 interface SearchPageProps {
     wordData: WordData;
@@ -12,6 +13,9 @@ function SearchPage({wordData}:SearchPageProps) {
     const eventContext = useContextForce(EventContext);
     const [previousBookmarkAdded, setPreviousBookmarkAdded] = useState(false);
     const [bookmarkAdded, setBookmarkAdded] = useState(false);
+    const [meaningIndexes, setMeaningIndexes] = useState<number[]>([]);
+
+    const word = wordData.word.trim();
 
     const backToHome = () => {
         if (previousBookmarkAdded !== bookmarkAdded) {
@@ -23,6 +27,7 @@ function SearchPage({wordData}:SearchPageProps) {
             }
         }
 
+        LocalAPI.updateWordMeaningPriority(wordData.word, meaningIndexes);
         eventContext.popPage();
     }
 
@@ -35,22 +40,39 @@ function SearchPage({wordData}:SearchPageProps) {
         }
     }
 
+    console.log(meaningIndexes);
+
+    const toggleMeaningPriority = (meaningIndex:number) => {
+        setMeaningIndexes((prev)=>{
+            if (prev.includes(meaningIndex)) {
+                return prev.filter((item)=>item !== meaningIndex);
+            }
+            else {
+                return [...prev, meaningIndex];
+            }
+        });
+    }
+
     useEffect(() => {
+        // 북마크 여부 확인
         LocalAPI
             .getWord(wordData.word)
             .then(result => {
                 if (result) {
                     setBookmarkAdded(true);
                     setPreviousBookmarkAdded(true);
+                    setMeaningIndexes(result.priority_meaning_indexes);
                 }
                 else {
                     setBookmarkAdded(false);
                     setPreviousBookmarkAdded(false);
+                    setMeaningIndexes([]);
                 }
             });
     }, []);
     
     useEffect(() => {
+        // Ctrl + S : 북마크 토글
         const handleKeyDown = (event) => {
             if (event.ctrlKey && event.key === 's') {
                 event.preventDefault();
@@ -81,22 +103,39 @@ function SearchPage({wordData}:SearchPageProps) {
             >
                 {wordData.word}
             </div>
-            <div className='column scrollbar meaning' style={{ overflowY: 'auto' }}>
+            <div className='column scrollbar meaning-container' style={{ overflowY: 'auto' }}>
             {
-                wordData.data.map((result, index) => {
+                wordData.data.map((item, index) => {
                     return (
                         <div
                             key={index}
-                            className='app-nodrag'
+                            className='app-nodrag row undraggable'
                             style={{ margin: '0px 16px', paddingLeft: '8px' }}
                         >
-                            <span>
-                                {index + 1}. {result.to} [{result.fromType}]
+                            <span
+                                className={
+                                    'meaning' + (meaningIndexes.includes(index) ? ' priority' : '')
+                                }
+                                onClick={()=>toggleMeaningPriority(index)}
+                            >
+                                {index + 1}. {item.to} [{item.fromType}]
                             </span>
+                            {
+                                item.from !== word &&
+                                <span
+                                    className='another-word'
+                                    style={{
+                                        marginLeft: '8px',  
+                                    }}
+                                >
+                                    {item.from}
+                                </span>
+                            }
                         </div>
                     )
                 })
             }
+                <div style={{minHeight:'2em'}}/>
             </div>
 
             <div
@@ -104,14 +143,42 @@ function SearchPage({wordData}:SearchPageProps) {
                 style={{
                     bottom: '0px',
                     left: '0px',
-                    margin : '8px',
                 }}
             >
+                <GoogleFontIcon
+                    value='dictionary'
+                    className='clickable hover-animation undraggable'
+                    style={{
+                        fontSize: '24px',
+                        padding : '0px 0px 8px 8px',
+                    }}
+                    onClick={
+                        ()=>{
+                            LocalAPI.openBrowser(`https://www.wordreference.com/enko/${wordData.word}`);
+                        }
+                    }
+                />
+                <GoogleFontIcon
+                    value='volume_up'
+                    className='clickable hover-animation undraggable'
+                    style={{
+                        fontSize: '24px',
+                        padding : '0px 0px 8px 8px',
+                    }}
+                    onClick={
+                        ()=>{
+                            LocalAPI.openBrowser(`https://www.google.com/search?q=${wordData.word}+pronunciation`);
+                        }
+                    }
+                />
                 <img
                     className='clickable hover-animation undraggable'
                     src={NaverDictIcon}
                     alt='naver-dict'
                     width='24px'
+                    style={{
+                        margin : '0px 0px 8px 8px',
+                    }}
                     onClick={
                         ()=>{
                             LocalAPI.openBrowser(`https://dict.naver.com/dict.search?query=${wordData.word}`);

@@ -55,6 +55,11 @@ class ElectronIPC {
         const [err] = await window.electron.addWordscoreIncorrect(word)
         if (err) throw new IPCError(err.message);
     }
+
+    static async updateWordMeaningPriority(word:string, meaningIndexes:number[]) {
+        const [err] = await window.electron.updateWordMeaningPriority(word, meaningIndexes);
+        if (err) throw new IPCError(err.message);
+    }
 }
 
 export default ElectronIPC;

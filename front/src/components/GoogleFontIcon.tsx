@@ -7,6 +7,11 @@ interface GoogleFontIconProps {
     onClick?:()=>void;
 }
 
+/**
+ * see : https://fonts.google.com/icons
+ * @param param0 
+ * @returns 
+ */
 function GoogleFontIcon({
     className='',
     value,
