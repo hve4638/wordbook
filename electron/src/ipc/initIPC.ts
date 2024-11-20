@@ -10,13 +10,11 @@ export function initIPC(dependencies:IPCHandleDependencies) {
     handleIPC(ipcping.ECHO_SYNC, handlers.echoSync);
     handleIPC(ipcping.OPEN_BROWSER, handlers.openBrowser);
     handleIPC(ipcping.SEARCH_WORD_ENKO, handlers.searchWord);
-    handleIPC(ipcping.ADD_WORD, handlers.addWord);
-    handleIPC(ipcping.REMOVE_WORD, handlers.removeWord);
-    handleIPC(ipcping.UPDATE_WORD_MEANING_PRIORITY, handlers.updateWordMeaningPriority);
-    handleIPC(ipcping.GET_WORD, handlers.getWord);
-    handleIPC(ipcping.GET_WORDS, handlers.getWords);
-    handleIPC(ipcping.ADD_WORDSCORE_CORRECT, handlers.addWordscoreCorrect);
-    handleIPC(ipcping.ADD_WORDSCORE_INCORRECT, handlers.addWordscoreIncorrect);
+    handleIPC(ipcping.ADD_BOOKMARK, handlers.addBookmark);
+    handleIPC(ipcping.GET_BOOKMARK, handlers.getBookmark);
+    handleIPC(ipcping.GET_BOOKMARKS, handlers.getBookmarks);
+    handleIPC(ipcping.DELETE_BOOKMARK, handlers.deleteBookmark);
+    handleIPC(ipcping.INCREASE_BOOKMARK_QUIZSCORE, handlers.increaseBookmarkQuizScore);
 }
 
 function handleIPC(ping:PINGS, callback:any) {

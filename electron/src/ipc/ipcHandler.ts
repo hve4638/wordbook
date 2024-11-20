@@ -2,7 +2,7 @@ import fs from 'fs';
 import { ipcMain, shell } from 'electron';
 import ipcping from './ipcping';
 import { WordReference } from '../services/dict';
-import Wordbook from '../wordbook';
+import Wordbook from '../features/wordbook';
 
 export interface IPCHandleDependencies {
     wordbook:Wordbook,
@@ -22,9 +22,6 @@ export function getIPCHandler({
         echoSync: async (message:string) => {
             return [null, message];
         },
-        searchWord: async (word:string) => {
-            return [null, await wordReference.search(word)];
-        },
         openBrowser: async (url:string) => {
             if (!url.startsWith('https://')) {
                 url = 'https://' + url;
@@ -32,18 +29,25 @@ export function getIPCHandler({
             shell.openExternal(url);
             return [null];
         },
+        searchWord: async (word:string) => {
+            const cached = wordbook.getWord(word);
+            if (cached) {
+                return [null, cached.meaning];
+            }
+            else {
+                const meaning = await wordReference.search(word);
+                wordbook.addWord(word, meaning);
 
-        addWord: async (wordData:WordData) => {
-            wordbook.addWord(wordData.word, wordData.data);
+                return [null, meaning];
+            }
+        },
+
+        addBookmark: async (wordData:WordData) => {
+            wordbook.addBookmark(wordData.word);
             return [null, -1];
         },
-        removeWord: async (word:string) => {
-            wordbook.removeWord(word);
-            return [null];
-        },
-
-        getWord: async (word:string) => {
-            const data = wordbook.getWord(word);
+        getBookmark: async (word:string) => {
+            const data = wordbook.getBookmark(word);
             if (data) {
                 return [null, data];
             }
@@ -51,20 +55,16 @@ export function getIPCHandler({
                 throw new Error('No word found');
             }
         },
-        getWords: async (conditions:WordSelectCondition[], option:WordSelectOption) => {
-            return [null, wordbook.getWords(conditions)];
+        getBookmarks: async (conditions:BookmarkSelectCondition[], option:WordSelectOption) => {
+            return [null, wordbook.getBookmarks(conditions)]; 
         },
-        updateWordMeaningPriority: async (word:string, meaningIndexes:number[]) => {
-            wordbook.updateWordMeaningPriority(word, meaningIndexes);
+        deleteBookmark: async (word:string) => {
+            wordbook.deleteBookmark(word);
             return [null];
         },
 
-        addWordscoreCorrect: async (word:string) => {
-            wordbook.addWordCorrectCount(word);
-            return [null];
-        },
-        addWordscoreIncorrect: async (word:string) => {
-            wordbook.addWordIncorrectCount(word);
+        increaseBookmarkQuizScore: async (word:string, correct:number, incorrect:number) => {
+            wordbook.increaseBookmarkQuizScore(word, correct, incorrect);
             return [null];
         },
     }

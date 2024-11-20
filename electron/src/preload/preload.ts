@@ -5,17 +5,12 @@ const api:IPC_APIS = {
     echoSync: (message:string) => ipcRenderer.invoke(ipcping.ECHO_SYNC, message),
     searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
     openBrowser: (url:string) => ipcRenderer.invoke(ipcping.OPEN_BROWSER, url),
-
-    addWord: (wordData:WordData) => ipcRenderer.invoke(ipcping.ADD_WORD, wordData),
-    removeWord: (word:string) => ipcRenderer.invoke(ipcping.REMOVE_WORD, word),
-    getWord: (word:string) => ipcRenderer.invoke(ipcping.GET_WORD, word),
-    getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ipcRenderer.invoke(ipcping.GET_WORDS, conditions, option),
-
-    updateWordMeaningPriority: (word:string, meaningIndexes:number[]) => ipcRenderer.invoke(ipcping.UPDATE_WORD_MEANING_PRIORITY, word, meaningIndexes),
-
-    addWordscoreCorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_CORRECT, word),
-    addWordscoreIncorrect: (word:string) => ipcRenderer.invoke(ipcping.ADD_WORDSCORE_INCORRECT, word),
     
+    addBookmark: (wordData:WordData) => ipcRenderer.invoke(ipcping.ADD_BOOKMARK, wordData),
+    getBookmark: (word:string) => ipcRenderer.invoke(ipcping.GET_BOOKMARK, word),
+    getBookmarks: (conditions:BookmarkSelectCondition[], option:WordSelectOption) => ipcRenderer.invoke(ipcping.GET_BOOKMARKS, conditions, option),
+    deleteBookmark: (word:string) => ipcRenderer.invoke(ipcping.DELETE_BOOKMARK, word),
+    increaseBookmarkQuizScore: (word:string, correct:number, incorrect:number) => ipcRenderer.invoke(ipcping.INCREASE_BOOKMARK_QUIZSCORE, word, correct, incorrect),
 
     onVisible: (listener:(event)=>void) => ipcRenderer.on(ipcping.ON_VISIBLE, listener),
     onHide: (listener:(event)=>void) => ipcRenderer.on(ipcping.ON_HIDE, listener),
