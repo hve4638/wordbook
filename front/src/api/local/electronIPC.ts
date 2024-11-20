@@ -20,16 +20,14 @@ class ElectronIPC {
 
     async addBookmark(word:string) {
         const [err] = await window.electron.addBookmark(word);
+
+        if (err) throw new IPCError(err.message);
     }
     
     async getBookmark(word:string): Promise<BookmarkData|null> {
         const [err, data] = await window.electron.getBookmark(word);
-        if (err) {
-            return null;
-        }
-        else {
-            return data;
-        }
+        if (err) throw new IPCError(err.message);
+        return data;
     }
 
     async getBookmarks(conditions:BookmarkSelectCondition[], option:WordSelectOption): Promise<BookmarkData[]> {
