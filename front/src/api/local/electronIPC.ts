@@ -1,20 +1,24 @@
 import { IPCError } from './errors';
 
 class ElectronIPC {
-    static async openBrowser(url:string) {
+    async openBrowser(url:string) {
         const [err] = await window.electron.openBrowser(url);
         if (err) throw new IPCError(err.message);
     }
 
-    static async searchWord(word:string): Promise<WordMeaning[]|null> {
+    async searchWord(word:string): Promise<WordMeaning[]|null> {
         const [err, data] = await window.electron.searchWord(word);
         if (err) throw new IPCError(err.message);
         
         return data;
     }
+
+    async addBookmark(word:string) {
+        const [err] = await window.electron.addBookmark(word);
+    }
     
-    static async getWord(word:string): Promise<WordData|null> {
-        const [err, data] = await window.electron.getWord(word);
+    async getBookmark(word:string): Promise<BookmarkData|null> {
+        const [err, data] = await window.electron.getBookmark(word);
         if (err) {
             return null;
         }

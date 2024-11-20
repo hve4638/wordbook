@@ -46,8 +46,8 @@ export function getIPCHandler({
             return [null];
         },
 
-        addBookmark: async (wordData:WordData) => {
-            wordbook.addBookmark(wordData.word);
+        addBookmark: async (word:string) => {
+            wordbook.addBookmark(word);
             return [null, -1];
         },
         getBookmark: async (word:string) => {

@@ -7,7 +7,7 @@ const api:IPC_APIS = {
     searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
     editWord: (word:string, meaning:WordMeaning[]) => ipcRenderer.invoke(ipcping.EDIT_WORD, word, meaning),
     
-    addBookmark: (wordData:WordData) => ipcRenderer.invoke(ipcping.ADD_BOOKMARK, wordData),
+    addBookmark: (word:string) => ipcRenderer.invoke(ipcping.ADD_BOOKMARK, word),
     getBookmark: (word:string) => ipcRenderer.invoke(ipcping.GET_BOOKMARK, word),
     getBookmarks: (conditions:BookmarkSelectCondition[], option:WordSelectOption) => ipcRenderer.invoke(ipcping.GET_BOOKMARKS, conditions, option),
     deleteBookmark: (word:string) => ipcRenderer.invoke(ipcping.DELETE_BOOKMARK, word),
