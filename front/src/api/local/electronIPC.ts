@@ -13,6 +13,11 @@ class ElectronIPC {
         return data;
     }
 
+    async editWord(word:string, meaning:WordMeaning[]) {
+        const [err] = await window.electron.editWord(word, meaning);
+        if (err) throw new IPCError(err.message);
+    }
+
     async addBookmark(word:string) {
         const [err] = await window.electron.addBookmark(word);
     }
@@ -27,42 +32,28 @@ class ElectronIPC {
         }
     }
 
-    static async addWord(wordData:WordData) {
-        const [err] = await window.electron.addWord(wordData);
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async removeWord(word:string) {
-        const [err] = await window.electron.removeWord(word);
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async getWords(
-        conditions:WordSelectCondition[],
-        option:WordSelectOption = {
-            order: 'sequence'
+    async getBookmarks(conditions:BookmarkSelectCondition[], option:WordSelectOption): Promise<BookmarkData[]> {
+        const [err, bookmarks] = await window.electron.getBookmarks(conditions, option);
+        if (err) {
+            throw new IPCError(err.message);
         }
-    ): Promise<WordData[]> {
-        const [err, words] = await window.electron.getWords(conditions, option);
-        if (err) throw new IPCError(err.message);
-
-        console.log(words);
-        return words;
+        else {
+            return bookmarks;
+        }
     }
 
-    static async addWordScoreCorrect(word:string) {
-        const [err] = await window.electron.addWordscoreCorrect(word)
-        if (err) throw new IPCError(err.message);
+    async deleteBookmark(word:string) {
+        const [err] = await window.electron.deleteBookmark(word);
+        if (err) {
+            throw new IPCError(err.message);
+        }
     }
 
-    static async addWordScoreIncorrect(word:string) {
-        const [err] = await window.electron.addWordscoreIncorrect(word)
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async updateWordMeaningPriority(word:string, meaningIndexes:number[]) {
-        const [err] = await window.electron.updateWordMeaningPriority(word, meaningIndexes);
-        if (err) throw new IPCError(err.message);
+    async increaseBookmarkQuizScore(word:string, correct:number, incorrect:number) {
+        const [err] = await window.electron.increaseBookmarkQuizScore(word, correct, incorrect);
+        if (err) {
+            throw new IPCError(err.message);
+        }
     }
 }
 

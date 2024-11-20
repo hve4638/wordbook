@@ -1,3 +1,5 @@
 import ElectronIPC from './electronIPC'
 
-export default ElectronIPC;
+const LocalAPI = new ElectronIPC();
+
+export default LocalAPI;
