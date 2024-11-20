@@ -11,6 +11,7 @@ export function initIPC(dependencies:IPCHandleDependencies) {
     handleIPC(ipcping.OPEN_BROWSER, handlers.openBrowser);
     handleIPC(ipcping.SEARCH_WORD_ENKO, handlers.searchWord);
     handleIPC(ipcping.ADD_BOOKMARK, handlers.addBookmark);
+    handleIPC(ipcping.EDIT_WORD, handlers.editWord);
     handleIPC(ipcping.GET_BOOKMARK, handlers.getBookmark);
     handleIPC(ipcping.GET_BOOKMARKS, handlers.getBookmarks);
     handleIPC(ipcping.DELETE_BOOKMARK, handlers.deleteBookmark);

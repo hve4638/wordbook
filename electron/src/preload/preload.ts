@@ -3,8 +3,9 @@ import { ipcping } from '../ipc';
 
 const api:IPC_APIS = {
     echoSync: (message:string) => ipcRenderer.invoke(ipcping.ECHO_SYNC, message),
-    searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
     openBrowser: (url:string) => ipcRenderer.invoke(ipcping.OPEN_BROWSER, url),
+    searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
+    editWord: (word:string, meaning:WordMeaning[]) => ipcRenderer.invoke(ipcping.EDIT_WORD, word, meaning),
     
     addBookmark: (wordData:WordData) => ipcRenderer.invoke(ipcping.ADD_BOOKMARK, wordData),
     getBookmark: (word:string) => ipcRenderer.invoke(ipcping.GET_BOOKMARK, word),

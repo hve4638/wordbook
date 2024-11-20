@@ -24,7 +24,8 @@ type WordData = {
 type WordMeaning = {
     from : string,
     to : string,
-    fromType : string
+    fromType : string,
+    star? : boolean,
 };
 
 type MultipleSelectOrder = 'sequence'|'interleave';
@@ -73,6 +74,7 @@ type IPC_APIS = {
     echoSync: (message:string) => ElectronResult<string>,
     openBrowser: (url:string) => ElectronNoResult,
     searchWord: (word:string) => ElectronResult<WordMeaning[]>,
+    editWord : (word:string, meaning:WordMeaning[]) => ElectronNoResult,
     addBookmark: (wordData:WordData) => ElectronResult<number>,
     getBookmark: (word:string) => ElectronResult<BookmarkData>,
     getBookmarks: (conditions:BookmarkSelectCondition[], option:WordSelectOption) => ElectronResult<BookmarkData[]>,

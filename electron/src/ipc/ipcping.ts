@@ -5,8 +5,11 @@ const ping = {
     ON_VISIBLE : 'on-visible',
     ON_HIDE : 'on-hide',
     ON_RECEIVE_CLIPBOARD : 'on-receive-clipboard',
+
     
     SEARCH_WORD_ENKO : 'search-word-enko',
+    EDIT_WORD : 'edit-word',
+
     ADD_BOOKMARK : 'add-bookmark',
     GET_BOOKMARK : 'get-bookmark',
     GET_BOOKMARKS : 'get-bookmarks',

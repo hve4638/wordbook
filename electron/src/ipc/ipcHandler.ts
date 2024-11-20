@@ -41,6 +41,10 @@ export function getIPCHandler({
                 return [null, meaning];
             }
         },
+        editWord: async (word:string, meaning:WordMeaning[]) => {
+            wordbook.editWord(word, meaning);
+            return [null];
+        },
 
         addBookmark: async (wordData:WordData) => {
             wordbook.addBookmark(wordData.word);

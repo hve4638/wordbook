@@ -44,13 +44,19 @@ class Wordbook {
      * 단어 캐시 추가
      */
     addWord(word:string, meaning:Meaning[]) {
-        const data = JSON.stringify(meaning);
         qb.insertWord({
             word,
-            meaning:data
+            meaning:JSON.stringify(meaning)
         }).run(this.#db);
     }
 
+    editWord(word:string, meaning:Meaning[]) {
+        qb.updateWord({
+            word,
+            meaning:JSON.stringify(meaning)
+        }).run(this.#db);
+    }
+    
     getWord(word:string):DBWord|undefined {
         const rawDBWord = qb.selectWord({word}).get(this.#db);
 
