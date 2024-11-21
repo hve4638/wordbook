@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { app, BrowserWindow, Menu, shell, globalShortcut, Tray, clipboard } from 'electron';
 import { ipcping, initIPC } from './ipc';
-import { baseDirectoryPath } from './storagepath';
-import Wordbook from './wordbook';
+import { baseDirectoryPath } from './data/storage-path';
+import Wordbook from './features/wordbook';
 import { WordReference } from './services/dict';
 
 const dbPath = path.join(baseDirectoryPath, 'word.db');

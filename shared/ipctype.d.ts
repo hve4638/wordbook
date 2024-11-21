@@ -1,20 +1,27 @@
 type ElectronResult<T> = Promise<[Error|null, T]>;
 type ElectronNoResult = Promise<[Error|null]>;
 
-type WordData = {
+type BookmarkData = {
     id : number,
     word : string,
-    data : WordMeaning[],
-    added_date : number,
-    correct : number,
-    incorrect: number,
-    total: number
+    meanings : WordMeaning[],
+    addedDate : number,
+    quizCorrect : number,
+    quizIncorrect: number,
+    quizTotal: number
+    quizIncorrectRate : number,
+}
+type WordData = {
+    word : string,
+    meanings : WordMeaning[],
 }
 
 type WordMeaning = {
     from : string,
     to : string,
-    fromType : string
+    fromType : string,
+    star? : boolean,
+    custom? : boolean,
 };
 
 type MultipleSelectOrder = 'sequence'|'interleave';
@@ -23,7 +30,7 @@ type WordSelectOption = {
     order : MultipleSelectOrder
 }
 
-type WordSelectCondition = {
+type BookmarkSelectCondition = {
     /** 낮은 퀴즈 등장 빈도 순 */
     lowQuizFrequency?: boolean;
     /** 높은 퀴즈 등장 빈도 순 */
@@ -54,20 +61,21 @@ type WordSelectCondition = {
     /** 최신 순 정렬 */
     latest? : boolean,
 }
+/**
+ * @deprecated Use BookmarkSelectCondition instead
+ */
+type WordSelectCondition = BookmarkSelectCondition;
 
 type IPC_APIS = {
     echoSync: (message:string) => ElectronResult<string>,
-    searchWord: (word:string) => ElectronResult<WordMeaning[]>,
-
     openBrowser: (url:string) => ElectronNoResult,
-
-    addWord: (wordData:WordData) => ElectronResult<number>,
-    removeWord: (word:string) => ElectronNoResult,
-    getWord: (word:string) => ElectronResult<WordData>,
-    getWords: (conditions:WordSelectCondition[], option:WordSelectOption) => ElectronResult<WordData[]>,
-
-    addWordscoreCorrect: (word:string) => ElectronNoResult,
-    addWordscoreIncorrect: (word:string) => ElectronNoResult,
+    searchWord: (word:string) => ElectronResult<WordMeaning[]>,
+    editWord : (word:string, meanings:WordMeaning[]) => ElectronNoResult,
+    addBookmark: (word:string) => ElectronResult<number>,
+    getBookmark: (word:string) => ElectronResult<BookmarkData>,
+    getBookmarks: (conditions:BookmarkSelectCondition[], option:WordSelectOption) => ElectronResult<BookmarkData[]>,
+    deleteBookmark: (word:string) => ElectronNoResult,
+    increaseBookmarkQuizScore: (word:string, correct:number, incorrect:number) => ElectronNoResult,
 
     onVisible: (listener:(event)=>void) => void,
     onHide: (listener:(event)=>void) => void,

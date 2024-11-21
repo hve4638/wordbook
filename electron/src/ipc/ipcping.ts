@@ -1,22 +1,22 @@
 const ping = {
     ECHO_SYNC : 'echo-sync',
-    SEARCH_WORD_ENKO : 'search-word-enko',
     OPEN_BROWSER : 'open-browser',
 
     ON_VISIBLE : 'on-visible',
     ON_HIDE : 'on-hide',
     ON_RECEIVE_CLIPBOARD : 'on-receive-clipboard',
-    
-    ADD_WORD : 'add-word',
-    REMOVE_WORD : 'remove-word',
-    GET_LATEST_WORDS : 'get-latest-words',
-    GET_RANDOM_WORDS : 'get-random-words',
 
-    GET_WORD : 'get-word',
-    GET_WORDS : 'get-words',
+    SEARCH_WORD_ENKO : 'search-word-enko',
+    EDIT_WORD : 'edit-word',
+
+    ADD_BOOKMARK : 'add-bookmark',
+    GET_BOOKMARK : 'get-bookmark',
+    GET_BOOKMARKS : 'get-bookmarks',
+    DELETE_BOOKMARK : 'delete-bookmark',
+    INCREASE_BOOKMARK_QUIZSCORE : 'increase-bookmark-quizscore',
 
     ADD_WORDSCORE_CORRECT : 'add-wordscore-correct',
     ADD_WORDSCORE_INCORRECT : 'add-wordscore-incorrect',
-}
+} as const;
 
 export default ping;

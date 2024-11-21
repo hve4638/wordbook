@@ -4,14 +4,16 @@ export type QuizResult = {
     selectedIndex: number;
 }
 
-export type QuizChoices = {
-    meaning: string;
+export type QuizChoice = {
+    word: string;
+    meaning: WordMeaning;
     correct: boolean;
     show?: boolean;
-}[];
+};
 
 export interface IQuiz {
-    get correct():WordData;
-    get choices():{meaning: string, correct: boolean, show?: boolean }[];
-    select(index:number):QuizResult|undefined;
+    get correctWord():WordData;
+    get choices():QuizChoice[];
+    get finished():boolean;
+    selectAnswer(index:number):boolean;
 }

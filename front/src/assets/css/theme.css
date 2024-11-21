@@ -9,8 +9,11 @@
     --title-color: rgb(59, 62, 68);
     --icon-color: rgb(80, 87, 98);
     --icon-hover-color: rgb(32, 43, 58);
-    --text-color: black;
+    --text-color: rgb(26, 26, 26);
     --text-secondary-color: rgb(48, 48, 48);
+
+    --text-meaning-hover-color: rgb(39, 51, 217);
+    --text-meaning-active-color: rgb(12, 0, 238);
 
     --icon-disabled-color: rgb(108, 124, 149);
     --icon-enabled-color: rgb(207, 226, 255);

@@ -1,59 +1,57 @@
 import { IPCError } from './errors';
 
 class ElectronIPC {
-    static async openBrowser(url:string) {
+    async openBrowser(url:string) {
         const [err] = await window.electron.openBrowser(url);
         if (err) throw new IPCError(err.message);
     }
 
-    static async searchWord(word:string): Promise<WordMeaning[]|null> {
+    async searchWord(word:string): Promise<WordMeaning[]|null> {
         const [err, data] = await window.electron.searchWord(word);
         if (err) throw new IPCError(err.message);
         
         return data;
     }
+
+    async editWord(word:string, meanings:WordMeaning[]) {
+        const [err] = await window.electron.editWord(word, meanings);
+        if (err) throw new IPCError(err.message);
+    }
+
+    async addBookmark(word:string) {
+        const [err] = await window.electron.addBookmark(word);
+
+        if (err) throw new IPCError(err.message);
+    }
     
-    static async getWord(word:string): Promise<WordData|null> {
-        const [err, data] = await window.electron.getWord(word);
+    async getBookmark(word:string): Promise<BookmarkData|null> {
+        const [err, data] = await window.electron.getBookmark(word);
+        if (err) return null;
+        return data;
+    }
+
+    async getBookmarks(
+        conditions:BookmarkSelectCondition[],
+        option:WordSelectOption = {order: 'sequence'}
+    ): Promise<BookmarkData[]> {
+        const [err, bookmarks] = await window.electron.getBookmarks(conditions, option);
+        if (err) throw new IPCError(err.message);
+        
+        return bookmarks;
+    }
+
+    async deleteBookmark(word:string) {
+        const [err] = await window.electron.deleteBookmark(word);
         if (err) {
-            return null;
-        }
-        else {
-            return data;
+            throw new IPCError(err.message);
         }
     }
 
-    static async addWord(wordData:WordData) {
-        const [err] = await window.electron.addWord(wordData);
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async removeWord(word:string) {
-        const [err] = await window.electron.removeWord(word);
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async getWords(
-        conditions:WordSelectCondition[],
-        option:WordSelectOption = {
-            order: 'sequence'
+    async increaseBookmarkQuizScore(word:string, correct:number, incorrect:number) {
+        const [err] = await window.electron.increaseBookmarkQuizScore(word, correct, incorrect);
+        if (err) {
+            throw new IPCError(err.message);
         }
-    ): Promise<WordData[]> {
-        const [err, words] = await window.electron.getWords(conditions, option);
-        if (err) throw new IPCError(err.message);
-
-        console.log(words);
-        return words;
-    }
-
-    static async addWordScoreCorrect(word:string) {
-        const [err] = await window.electron.addWordscoreCorrect(word)
-        if (err) throw new IPCError(err.message);
-    }
-
-    static async addWordScoreIncorrect(word:string) {
-        const [err] = await window.electron.addWordscoreIncorrect(word)
-        if (err) throw new IPCError(err.message);
     }
 }
 

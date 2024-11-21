@@ -2,7 +2,7 @@ import fs from 'fs';
 import { ipcMain, shell } from 'electron';
 import ipcping from './ipcping';
 import { WordReference } from '../services/dict';
-import Wordbook from '../wordbook';
+import Wordbook from '../features/wordbook';
 
 export interface IPCHandleDependencies {
     wordbook:Wordbook,
@@ -11,6 +11,9 @@ export interface IPCHandleDependencies {
 
 type IPC_APIS_OMMITED = 'onVisible'|'onHide'|'onReceiveClipboard';
 
+/**
+ * IPC API Handler 함수 반환
+ */
 export function getIPCHandler({
     wordbook,
     wordReference
@@ -19,9 +22,6 @@ export function getIPCHandler({
         echoSync: async (message:string) => {
             return [null, message];
         },
-        searchWord: async (word:string) => {
-            return [null, await wordReference.search(word)];
-        },
         openBrowser: async (url:string) => {
             if (!url.startsWith('https://')) {
                 url = 'https://' + url;
@@ -29,18 +29,29 @@ export function getIPCHandler({
             shell.openExternal(url);
             return [null];
         },
+        searchWord: async (word:string) => {
+            const cached = wordbook.getWord(word);
+            if (cached) {
+                return [null, cached.meanings];
+            }
+            else {
+                const meanings = await wordReference.search(word);
+                wordbook.addWord(word, meanings);
 
-        addWord: async (wordData:WordData) => {
-            wordbook.addWord(wordData.word, wordData.data);
-            return [null, -1];
+                return [null, meanings];
+            }
         },
-        removeWord: async (word:string) => {
-            wordbook.removeWord(word);
+        editWord: async (word:string, meanings:WordMeaning[]) => {
+            wordbook.editWord(word, meanings);
             return [null];
         },
 
-        getWord: async (word:string) => {
-            const data = wordbook.getWord(word);
+        addBookmark: async (word:string) => {
+            wordbook.addBookmark(word);
+            return [null, -1];
+        },
+        getBookmark: async (word:string) => {
+            const data = wordbook.getBookmark(word);
             if (data) {
                 return [null, data];
             }
@@ -48,16 +59,16 @@ export function getIPCHandler({
                 throw new Error('No word found');
             }
         },
-        getWords: async (conditions:WordSelectCondition[], option:WordSelectOption) => {
-            return [null, wordbook.getWords(conditions)];
+        getBookmarks: async (conditions:BookmarkSelectCondition[], option:WordSelectOption) => {
+            return [null, wordbook.getBookmarks(conditions)]; 
         },
-
-        addWordscoreCorrect: async (word:string) => {
-            wordbook.addWordCorrectCount(word);
+        deleteBookmark: async (word:string) => {
+            wordbook.deleteBookmark(word);
             return [null];
         },
-        addWordscoreIncorrect: async (word:string) => {
-            wordbook.addWordIncorrectCount(word);
+
+        increaseBookmarkQuizScore: async (word:string, correct:number, incorrect:number) => {
+            wordbook.increaseBookmarkQuizScore(word, correct, incorrect);
             return [null];
         },
     }

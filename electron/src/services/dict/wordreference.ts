@@ -28,8 +28,9 @@ class wordreference {
             tr.each((index, element) => {
                 const id = $(element).attr('id');
                 if (!id?.startsWith('enko')) return;
-            
-                const word = $(element).find('.FrWrd > strong').text();
+                
+                const frWrd = $(element).find('.FrWrd > strong')
+                let word = $($(frWrd.contents()[0])[0]).text().trim();
                 const wordclass = $(element).find('.FrWrd > em').text();
                 
                 const toWrd = $(element).find('.ToWrd');

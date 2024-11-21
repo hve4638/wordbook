@@ -7,24 +7,25 @@ type PINGS = typeof ipcping[keyof typeof ipcping];
 export function initIPC(dependencies:IPCHandleDependencies) {    
     const handlers = getIPCHandler(dependencies);
     
-    ipcHandle(ipcping.ECHO_SYNC, handlers.echoSync);
-    ipcHandle(ipcping.OPEN_BROWSER, handlers.openBrowser);
-    ipcHandle(ipcping.SEARCH_WORD_ENKO, handlers.searchWord);
-    ipcHandle(ipcping.ADD_WORD, handlers.addWord);
-    ipcHandle(ipcping.REMOVE_WORD, handlers.removeWord);
-    ipcHandle(ipcping.GET_WORD, handlers.getWord);
-    ipcHandle(ipcping.GET_WORDS, handlers.getWords);
-    ipcHandle(ipcping.ADD_WORDSCORE_CORRECT, handlers.addWordscoreCorrect);
-    ipcHandle(ipcping.ADD_WORDSCORE_INCORRECT, handlers.addWordscoreIncorrect);
+    handleIPC(ipcping.ECHO_SYNC, handlers.echoSync);
+    handleIPC(ipcping.OPEN_BROWSER, handlers.openBrowser);
+    handleIPC(ipcping.SEARCH_WORD_ENKO, handlers.searchWord);
+    handleIPC(ipcping.ADD_BOOKMARK, handlers.addBookmark);
+    handleIPC(ipcping.EDIT_WORD, handlers.editWord);
+    handleIPC(ipcping.GET_BOOKMARK, handlers.getBookmark);
+    handleIPC(ipcping.GET_BOOKMARKS, handlers.getBookmarks);
+    handleIPC(ipcping.DELETE_BOOKMARK, handlers.deleteBookmark);
+    handleIPC(ipcping.INCREASE_BOOKMARK_QUIZSCORE, handlers.increaseBookmarkQuizScore);
 }
 
-function ipcHandle(ping:PINGS, callback:any) {
+function handleIPC(ping:PINGS, callback:any) {
     ipcMain.handle(ping, async (event: any, ...args: any) => {
         try {
             const result = await callback(...args);
             return result;
         }
         catch (error:any) {
+            console.error(error);
             return [makeErrorStruct(error)];
         }
     });

@@ -1,5 +1,6 @@
-import React, { useState, createContext, useEffect, ReactElement } from 'react';
+import React, { useState, createContext, ReactElement } from 'react';
 import { SetState } from './types';
+import { IQuiz } from 'features/quiz';
 
 interface MemoryContextType {
     currentWordData:WordData,
@@ -11,6 +12,11 @@ interface MemoryContextType {
 
     pageStack:ReactElement[],
     setPageStack:SetState<ReactElement[]>
+
+    quiz:IQuiz[],
+    setQuiz:SetState<IQuiz[]>,
+    lastQuizIndex:number,
+    setLastQuizIndex:SetState<number>,
 }
 
 export const MemoryContext = createContext<MemoryContextType|null>(null);
@@ -20,6 +26,8 @@ export function MemoryContextProvider({children}) {
     const [visibleCount, setVisibleCount] = useState<number>(0);
     const [hideCount, setHideCount] = useState<number>(0);
     const [pageStack, setPageStack] = useState<ReactElement[]>([]);
+    const [quiz, setQuiz] = useState<IQuiz[]>([]);
+    const [lastQuizIndex, setLastQuizIndex] = useState(-1);
     
     return (
         <MemoryContext.Provider
@@ -28,6 +36,8 @@ export function MemoryContextProvider({children}) {
                 visibleCount, setVisibleCount,
                 hideCount, setHideCount,
                 pageStack, setPageStack,
+                quiz, setQuiz,
+                lastQuizIndex, setLastQuizIndex,
             }}
         >
             {children}
