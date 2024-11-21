@@ -25,6 +25,7 @@ function handleIPC(ping:PINGS, callback:any) {
             return result;
         }
         catch (error:any) {
+            console.error(error);
             return [makeErrorStruct(error)];
         }
     });

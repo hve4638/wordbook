@@ -50,7 +50,7 @@ class Query<RowType = never> {
             return callback();
         }
         catch(e:unknown) {
-            if (e instanceof SqliteError) {
+            if (e instanceof Error) {
                 throw new QueryError(e.message, this.query, this.params);
             }
             else {

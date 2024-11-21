@@ -6,8 +6,9 @@ declare global {
     }
 
     type WordData = import('../../shared/ipctype.d.ts').WordData;
+    type BookmarkData = import('../../shared/ipctype.d.ts').BookmarkData;
     type WordMeaning = import('../../shared/ipctype.d.ts').WordMeaning;
-    type WordSelectCondition = import('../../shared/ipctype.d.ts').WordSelectCondition;
+    type BookmarkSelectCondition = import('../../shared/ipctype.d.ts').BookmarkSelectCondition;
     type WordSelectOption = import('../../shared/ipctype.d.ts').WordSelectOption;
 }
 

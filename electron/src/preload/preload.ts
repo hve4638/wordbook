@@ -5,7 +5,7 @@ const api:IPC_APIS = {
     echoSync: (message:string) => ipcRenderer.invoke(ipcping.ECHO_SYNC, message),
     openBrowser: (url:string) => ipcRenderer.invoke(ipcping.OPEN_BROWSER, url),
     searchWord: (word:string) => ipcRenderer.invoke(ipcping.SEARCH_WORD_ENKO, word),
-    editWord: (word:string, meaning:WordMeaning[]) => ipcRenderer.invoke(ipcping.EDIT_WORD, word, meaning),
+    editWord: (word:string, meanings:WordMeaning[]) => ipcRenderer.invoke(ipcping.EDIT_WORD, word, meanings),
     
     addBookmark: (word:string) => ipcRenderer.invoke(ipcping.ADD_BOOKMARK, word),
     getBookmark: (word:string) => ipcRenderer.invoke(ipcping.GET_BOOKMARK, word),

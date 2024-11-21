@@ -17,13 +17,14 @@ function HomePage() {
 
     const sendSearchQuery = async (query:string) => {
         if (query.length === 0) return;
+        const word = query.trim();
         
-        const meanings = await LocalInteractive.searchWord(query);
+        const meanings = await LocalInteractive.searchWord(word);
         if (meanings) {
             const wordData = {
                 id: -1,
-                word: query,
-                data: meanings,
+                word: word,
+                meanings: meanings,
             } as WordData;
 
             eventContext.pushPage(<SearchPage wordData={wordData}/>);
@@ -84,10 +85,12 @@ function HomePage() {
                             marginLeft: '6px',
                             width : '1rem',
                             height : '1rem',
+                            cursor: 'pointer',
                         }}
                         onClick={ (e) => sendSearchQuery(inputWord) }
                     >
                         <GoogleFontIcon
+                            className='clickable'
                             style={{fontSize:'0.8rem'}}
                             value='send'
                         />

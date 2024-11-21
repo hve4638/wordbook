@@ -32,17 +32,17 @@ export function getIPCHandler({
         searchWord: async (word:string) => {
             const cached = wordbook.getWord(word);
             if (cached) {
-                return [null, cached.meaning];
+                return [null, cached.meanings];
             }
             else {
-                const meaning = await wordReference.search(word);
-                wordbook.addWord(word, meaning);
+                const meanings = await wordReference.search(word);
+                wordbook.addWord(word, meanings);
 
-                return [null, meaning];
+                return [null, meanings];
             }
         },
-        editWord: async (word:string, meaning:WordMeaning[]) => {
-            wordbook.editWord(word, meaning);
+        editWord: async (word:string, meanings:WordMeaning[]) => {
+            wordbook.editWord(word, meanings);
             return [null];
         },
 

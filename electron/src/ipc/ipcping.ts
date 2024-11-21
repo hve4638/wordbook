@@ -6,7 +6,6 @@ const ping = {
     ON_HIDE : 'on-hide',
     ON_RECEIVE_CLIPBOARD : 'on-receive-clipboard',
 
-    
     SEARCH_WORD_ENKO : 'search-word-enko',
     EDIT_WORD : 'edit-word',
 

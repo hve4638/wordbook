@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local'
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
 import NaverDictIcon from 'assets/icons/naver-dict.svg';
 import GoogleFontIcon from 'components/GoogleFontIcon';
+import {EditWordMeaningModal} from 'components/modals';
 
 interface SearchPageProps {
     wordData: WordData;
@@ -13,21 +14,24 @@ function SearchPage({wordData}:SearchPageProps) {
     const eventContext = useContextForce(EventContext);
     const [previousBookmarkAdded, setPreviousBookmarkAdded] = useState(false);
     const [bookmarkAdded, setBookmarkAdded] = useState(false);
-    const [meaningIndexes, setMeaningIndexes] = useState<number[]>([]);
-
-    const word = wordData.word.trim();
+    const [meanings, setMeanings] = useState<WordMeaning[]>(wordData.meanings);
+    const word = useMemo(()=>wordData.word.trim(), [wordData.word]);
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [meaningToEdit, setMeaningToEdit] = useState<WordMeaning>();
 
     const backToHome = () => {
         if (previousBookmarkAdded !== bookmarkAdded) {
             if (bookmarkAdded) {
-                LocalAPI.addWord(wordData);
+                LocalAPI.addBookmark(word);
             }
             else {
-                LocalAPI.removeWord(wordData.word);
+                LocalAPI.deleteBookmark(word);
             }
         }
+        if (wordData.meanings !== meanings) {
+            LocalAPI.editWord(word, meanings);
+        }
 
-        LocalAPI.updateWordMeaningPriority(wordData.word, meaningIndexes);
         eventContext.popPage();
     }
 
@@ -40,33 +44,28 @@ function SearchPage({wordData}:SearchPageProps) {
         }
     }
 
-    console.log(meaningIndexes);
-
-    const toggleMeaningPriority = (meaningIndex:number) => {
-        setMeaningIndexes((prev)=>{
-            if (prev.includes(meaningIndex)) {
-                return prev.filter((item)=>item !== meaningIndex);
-            }
-            else {
-                return [...prev, meaningIndex];
-            }
-        });
+    const toggleMeaningStar = (meaning:WordMeaning) => {
+        // 이 방식은 원본이 바뀌는 사이드이팩트가 있으므로 필요시 로직 변경 필요
+        meaning.star = !meaning.star;
+        setMeanings([...meanings]);
     }
+
+    useLayoutEffect(() => {
+        setMeanings([...wordData.meanings]);
+    }, [wordData]);
 
     useEffect(() => {
         // 북마크 여부 확인
         LocalAPI
-            .getWord(wordData.word)
+            .getBookmark(word)
             .then(result => {
                 if (result) {
                     setBookmarkAdded(true);
                     setPreviousBookmarkAdded(true);
-                    setMeaningIndexes(result.priority_meaning_indexes);
                 }
                 else {
                     setBookmarkAdded(false);
                     setPreviousBookmarkAdded(false);
-                    setMeaningIndexes([]);
                 }
             });
     }, []);
@@ -103,39 +102,78 @@ function SearchPage({wordData}:SearchPageProps) {
             >
                 {wordData.word}
             </div>
-            <div className='column scrollbar meaning-container' style={{ overflowY: 'auto' }}>
-            {
-                wordData.data.map((item, index) => {
-                    return (
-                        <div
-                            key={index}
-                            className='app-nodrag row undraggable'
-                            style={{ margin: '0px 16px', paddingLeft: '8px' }}
-                        >
-                            <span
-                                className={
-                                    'meaning' + (meaningIndexes.includes(index) ? ' priority' : '')
-                                }
-                                onClick={()=>toggleMeaningPriority(index)}
+            <div
+                className='column scrollbar meaning-container'
+                style={{
+                    overflowY: 'auto',
+                    margin: '0px 16px',
+                    paddingLeft: '8px'
+                }}
+                >
+                {
+                    meanings.map((item, index) => {
+                        return (
+                            <div
+                                key={index}
+                                className='app-nodrag row undraggable'
                             >
-                                {index + 1}. {item.to} [{item.fromType}]
-                            </span>
-                            {
-                                item.from !== word &&
                                 <span
-                                    className='another-word'
-                                    style={{
-                                        marginLeft: '8px',  
+                                    className={
+                                        'meaning' + (item.star ? ' priority' : '')
+                                    }
+                                    onClick={()=>toggleMeaningStar(item)}
+                                    onMouseDown={(e)=>{
+                                        if (e.button === 1) {
+                                            if (item.custom) {
+                                                const newMeanings = meanings.filter((_, i) => i !== index);
+                                                
+                                                setMeanings(newMeanings);
+                                            }
+                                        }
                                     }}
                                 >
-                                    {item.from}
+                                    <span>
+                                        {index + 1}. {item.to} <i>{item.fromType}</i>
+                                    </span>
+                                    
                                 </span>
+                                {
+                                    item.from !== word &&
+                                    <span
+                                        className='another-word'
+                                        style={{
+                                            marginLeft: '8px',  
+                                        }}
+                                    >
+                                        {item.from}
+                                    </span>
+                                }
+                            </div>
+                        )
+                    })
+                }
+                <div
+                    className='app-nodrag secondary-text clickable'
+                    style={{
+                        marginTop : '0.3em',
+                        paddingLeft: '1em',
+                        fontSize: '0.9em',
+                    }}
+                >
+                    <i
+                        onClick={()=>{
+                            const newMeaning:WordMeaning = {
+                                from: wordData.word,
+                                fromType: '',
+                                to: '',
+                                star: false,
+                                custom: true,
                             }
-                        </div>
-                    )
-                })
-            }
-                <div style={{minHeight:'2em'}}/>
+                            setMeaningToEdit(newMeaning);
+                            setOpenEditModal(true);
+                        }}
+                    >새 뜻 추가...</i>
+                </div>
             </div>
 
             <div
@@ -213,6 +251,20 @@ function SearchPage({wordData}:SearchPageProps) {
                 value={bookmarkAdded ? 'bookmark_added' : 'bookmark'}
                 onClick={() => toggleBookmark()}
             />
+            {
+                openEditModal &&
+                <EditWordMeaningModal
+                    meaning={meaningToEdit!}
+                    onSubmit={(meaning:WordMeaning)=>{
+                        setMeanings([...meanings, meaning]);
+                        setOpenEditModal(false);
+                    }}
+                    onCancel={()=>{
+                        setMeaningToEdit(undefined);
+                        setOpenEditModal(false);
+                    }}
+                />
+            }
         </div>
     )
 }

@@ -1,0 +1,1 @@
+export {default as EditWordMeaningModal} from './EditWordMeaningModal';

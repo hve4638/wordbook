@@ -24,7 +24,7 @@ class OrderByQuery {
     }
 
     get params() {
-        return '';
+        return {};
     }
 }
 

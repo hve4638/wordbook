@@ -3,6 +3,10 @@
     --deleted-color: rgb(242, 52, 52);
 }
 
+.secondary-text {
+    color: var(--text-secondary-color);
+}
+
 .fonticon {
     color: var(--icon-color);
     transition: color 0.2s;

@@ -13,8 +13,8 @@ class ElectronIPC {
         return data;
     }
 
-    async editWord(word:string, meaning:WordMeaning[]) {
-        const [err] = await window.electron.editWord(word, meaning);
+    async editWord(word:string, meanings:WordMeaning[]) {
+        const [err] = await window.electron.editWord(word, meanings);
         if (err) throw new IPCError(err.message);
     }
 
@@ -26,18 +26,18 @@ class ElectronIPC {
     
     async getBookmark(word:string): Promise<BookmarkData|null> {
         const [err, data] = await window.electron.getBookmark(word);
-        if (err) throw new IPCError(err.message);
+        if (err) return null;
         return data;
     }
 
-    async getBookmarks(conditions:BookmarkSelectCondition[], option:WordSelectOption): Promise<BookmarkData[]> {
+    async getBookmarks(
+        conditions:BookmarkSelectCondition[],
+        option:WordSelectOption = {order: 'sequence'}
+    ): Promise<BookmarkData[]> {
         const [err, bookmarks] = await window.electron.getBookmarks(conditions, option);
-        if (err) {
-            throw new IPCError(err.message);
-        }
-        else {
-            return bookmarks;
-        }
+        if (err) throw new IPCError(err.message);
+        
+        return bookmarks;
     }
 
     async deleteBookmark(word:string) {

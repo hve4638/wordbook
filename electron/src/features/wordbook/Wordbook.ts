@@ -43,17 +43,17 @@ class Wordbook {
     /**
      * 단어 캐시 추가
      */
-    addWord(word:string, meaning:Meaning[]) {
+    addWord(word:string, meanings:WordMeaning[]) {
         qb.insertWord({
             word,
-            meaning:JSON.stringify(meaning)
+            meanings:JSON.stringify(meanings)
         }).run(this.#db);
     }
 
-    editWord(word:string, meaning:Meaning[]) {
+    editWord(word:string, meanings:WordMeaning[]) {
         qb.updateWord({
             word,
-            meaning:JSON.stringify(meaning)
+            meanings:JSON.stringify(meanings)
         }).run(this.#db);
     }
     
@@ -70,10 +70,18 @@ class Wordbook {
 
     #convertDBWord(rawDBWord:RawDBWord):DBWord {
         try {
-            rawDBWord.meaning = JSON.parse(rawDBWord.meaning);
+            rawDBWord.meanings = JSON.parse(rawDBWord.meanings);
             return rawDBWord as unknown as DBWord;
         }
         catch(e) {
+            console.log('');
+            console.log('');
+            console.log('');
+            console.log(e);
+            console.log(rawDBWord);
+            console.log('');
+            console.log('');
+            console.log('');
             throw new WordbookError(`Failed to parse meaning of word '${rawDBWord.word}'`);
         }
     }
@@ -201,7 +209,7 @@ class Wordbook {
 
     #convertDBBookmark(rawDBWord:RawDBBookmarkView):DBBookmarkView {
         try {
-            rawDBWord.meaning = JSON.parse(rawDBWord.meaning);
+            rawDBWord.meanings = JSON.parse(rawDBWord.meanings);
             return rawDBWord as unknown as DBBookmarkView;
         }
         catch(e) {

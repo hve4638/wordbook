@@ -11,21 +11,19 @@ export type DBWordDataRow = {
 
 export type RawDBWord = {
     word:string,
-    meaning:string,
+    meanings:string,
 }
 
 export type DBWord = {
     word:string,
-    meaning:Meaning[]
+    meanings:WordMeaning[]
 }
 
 export type RawDBBookmarkView = {
     id : number,
     word : string,
-    meaning: string,
+    meanings: string,
     addedDate : number,
-    priorityMeaningIndexes : string,
-
     quizTotal : number,
     quizCorrect : number,
     quizIncorrect : number,
@@ -34,7 +32,7 @@ export type RawDBBookmarkView = {
 export type DBBookmarkView = {
     id : number,
     word : string,
-    meaning: Meaning[],
+    meanings: WordMeaning[],
     addedDate : number,
 
     quizTotal : number,
@@ -43,9 +41,7 @@ export type DBBookmarkView = {
     quizIncorrectRate : number,
 }
 
-export type Meaning = {
-    from : string;
-    fromType : string;
-    to : string;
-    star? : boolean;
-}
+/**
+ * @deprecated
+ */
+export type Meaning = WordMeaning;

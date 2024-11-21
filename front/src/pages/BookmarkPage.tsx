@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useContextForce, EventContext } from 'contexts';
 import LocalAPI from 'api/local';
 
@@ -13,7 +13,7 @@ type BookmarkOrder = typeof BookmarkOrder[keyof typeof BookmarkOrder];
 
 function BookmarkPage() {
     const eventContext = useContextForce(EventContext);
-    const [bookmarkList, setBookmarkList] = useState<WordData[]>([]);
+    const [bookmarkList, setBookmarkList] = useState<BookmarkData[]>([]);
     const [unbookmarked, setUnbookmarked] = useState<{[word:string]:true}>({});
     const [bookmarkOrder, setBookmarkOrder] = useState<BookmarkOrder>(BookmarkOrder.LATEST);
 
@@ -30,25 +30,25 @@ function BookmarkPage() {
         }
     }
 
-    const isUnbookmarked = (wordData:WordData) => {
+    const isUnbookmarked = (wordData:BookmarkData) => {
         return unbookmarked[wordData.word];
     }
 
     const backToHome = () => {
         for (const word in unbookmarked) {
-            LocalAPI.removeWord(word);
+            LocalAPI.deleteBookmark(word);
             console.log(`[Unbookmarked] ${word}`);
         }
         eventContext.popPage();
     }
 
     useEffect(() => {
-        let promise:Promise<WordData[]>;
+        let promise:Promise<BookmarkData[]>;
         if (bookmarkOrder === BookmarkOrder.LATEST) {
-            promise = LocalAPI.getWords([{ latest: true }])
+            promise = LocalAPI.getBookmarks([{ latest: true }])
         }
         else if (bookmarkOrder === BookmarkOrder.INCORRECT) {
-            promise = LocalAPI.getWords([{ highQuizIncorrect: true }])
+            promise = LocalAPI.getBookmarks([{ highQuizIncorrect: true }])
         }
         else {
             return;
@@ -56,6 +56,10 @@ function BookmarkPage() {
 
         promise
             .then(result => {
+                console.group('bookmarkList');
+                console.log(bookmarkOrder);
+                console.log(result);
+                console.groupEnd();
                 setBookmarkList(result);
             })
             .catch(err => {
@@ -127,7 +131,7 @@ function BookmarkPage() {
                 }}
             >
             {
-                bookmarkList.map((wordData, index) => {
+                bookmarkList.map((item, index) => {
                     return (
                         <div
                             key={index}
@@ -140,18 +144,18 @@ function BookmarkPage() {
                                 className={
                                     `word clickable`
                                     + (
-                                        isUnbookmarked(wordData)
+                                        isUnbookmarked(item)
                                         ? ' removed'
                                         : ''
                                     )
                                 }
                                 onClick={()=>{
                                     eventContext.pushPage(
-                                        <SearchPage wordData={wordData}/>
+                                        <SearchPage wordData={item}/>
                                     );
                                 }}
                             >
-                                {wordData.word}
+                                {item.word}
                             </span>
                             <span></span>
                             <div className='flex'/>
@@ -163,13 +167,13 @@ function BookmarkPage() {
                                     marginRight: '8px',
                                 }}
                             >
-                                {`${wordData.correct} / ${wordData.incorrect}`}
+                                {`${item.quizCorrect} / ${item.quizIncorrect}`}
                             </span>
                             <GoogleFontIconButton
                                 className={
                                     'noflex fonticon clickable'
                                     + (
-                                        isUnbookmarked(wordData)
+                                        isUnbookmarked(item)
                                         ? (' unbookmarked')
                                         : ''
                                     )
@@ -178,11 +182,11 @@ function BookmarkPage() {
                                     fontSize: '0.7em',
                                 }}
                                 value={
-                                    isUnbookmarked(wordData)
+                                    isUnbookmarked(item)
                                     ? 'bookmark_add'
                                     : 'bookmark_remove'
                                 }
-                                onClick={()=>toogleBookmark(wordData)}
+                                onClick={()=>toogleBookmark(item)}
                             />
                         </div>
                     );

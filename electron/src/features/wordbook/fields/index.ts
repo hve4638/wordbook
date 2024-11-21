@@ -1,7 +1,7 @@
 export const BookmarkViewFields = {
     id: 'id',
     word: 'word',
-    meaning: 'meaning',
+    meanings: 'meanings',
     addedDate: 'addedDate',
     quizTotal: 'quizTotal',
     quizCorrect: 'quizCorrect',

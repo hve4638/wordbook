@@ -15,9 +15,9 @@ describe('Wordbook', () => {
         expect(actual).toBeUndefined();
     }
 
-    const expectWord = (word:string, meaning:Meaning[]) => {
+    const expectWord = (word:string, meanings:Meaning[]) => {
         const actual = wordbook.getWord(word);
-        expect(actual).toEqual({word, meaning});
+        expect(actual).toEqual({word, meanings});
     }
 
     const expectBookmarkNotExists = (word) => {
@@ -41,17 +41,17 @@ describe('Wordbook', () => {
         const word = 'apple';
         expectWordNotExists(word);
 
-        const meaning = {from:'apple', to:'사과', fromType:'n'};
-        wordbook.addWord(word, [meaning]);
-        expectWord(word, [meaning]);
+        const meanings = {from:'apple', to:'사과', fromType:'n'};
+        wordbook.addWord(word, [meanings]);
+        expectWord(word, [meanings]);
 
         wordbook.deleteWord(word);
         expectWordNotExists(word);
     })
     test('add/get/remove bookmark', ()=>{
         const word = 'apple';
-        const meaning = {from:'apple', to:'사과', fromType:'n'};
-        wordbook.addWord(word, [meaning]);
+        const meanings = {from:'apple', to:'사과', fromType:'n'};
+        wordbook.addWord(word, [meanings]);
         expectBookmarkNotExists(word);
         
         wordbook.addBookmark(word);
@@ -63,9 +63,9 @@ describe('Wordbook', () => {
 
     test('add word duplicate', ()=>{
         const word = 'apple';
-        const meaning = {from:'apple', to:'사과', fromType:'n'};
-        wordbook.addWord(word, [meaning]);
-        expect(()=>wordbook.addWord(word, [meaning])).toThrow();
+        const meanings = {from:'apple', to:'사과', fromType:'n'};
+        wordbook.addWord(word, [meanings]);
+        expect(()=>wordbook.addWord(word, [meanings])).toThrow();
     });
 
     test('Remove Nonexistent', ()=>{

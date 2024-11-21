@@ -1,85 +1,68 @@
-import { useEffect, useState } from 'react';
-import { useContextForce, EventContext, ConfigContext } from 'contexts';
+import { useEffect, useMemo, useState } from 'react';
+import { useContextForce, EventContext, ConfigContext, MemoryContext } from 'contexts';
 import GoogleFontIconButton from 'components/GoogleFontIconButton';
-import { QuizGenerator, IQuiz, QuizChoices } from 'features/quiz';
+import { QuizGenerator, IQuiz } from 'features/quiz';
 import SearchPage from 'pages/SearchPage';
 import GoogleFontIcon from 'components/GoogleFontIcon';
-import LocalAPI from 'api/local';
 
-let lastQuizGenerator:QuizGenerator;
-
-const resetQuizGenerator = () => {
-    lastQuizGenerator = new QuizGenerator({
-        onPull(offset:number, limit:number) {
-            return LocalAPI.getWords(
-                [
-                    {
-                        // 등장 횟수 10회 이하인 단어 선택
-                        // 낮은 등장 빈도 순 정렬 후 5개 단위 셔플
-                        highFrequencyLimit: 10,
-                        lowQuizFrequency: true,
-                        shuffle: true,
-                        shuffleGroupSize: 5,
-                    },
-                    {
-                        // 오답률 10% 이상인 단어 선택
-                        // 낮은 등장 빈도 & 오답률 높은 순 정렬 후 5개 단위 셔플
-                        lowIncorrectRateLimit: 10,
-                        lowQuizFrequency: true,
-                        highQuizIncorrect: true,
-                        shuffle: true,
-                        shuffleGroupSize: 5,
-                    }
-                ],
-                {
-                    // 두 그룹을 번갈아가며 단어 선택
-                    order: 'interleave'
-                }
-            );
-        },
-        onQuizCorrect(word:string) {
-            LocalAPI.addWordScoreCorrect(word);
-        },
-        onQuizIncorrect(word:string) {
-            LocalAPI.addWordScoreIncorrect(word);
-        },
-    });
-    return lastQuizGenerator;
-}
-resetQuizGenerator();
+const quizGenerator = new QuizGenerator();
 
 function QuizPage() {
     const configContext = useContextForce(ConfigContext);
     const eventContext = useContextForce(EventContext);
+    const memoryContext = useContextForce(MemoryContext);
 
-    const [quizGenerator, setQuizGenerator] = useState(lastQuizGenerator);
-    const [currentQuizFinished, setCurrentQuizFinished] = useState(false);
-    const [nextQuizPing, setNextQuizPing] = useState(0);
-    const [quiz, setQuiz] = useState<IQuiz|undefined>();
-    const [quizChoices, setQuizChoices] = useState<QuizChoices>([]);
+    const {
+        quiz,
+        lastQuizIndex
+    } = memoryContext;
+
+    const [refreshQuizPing, setRefreshQuizPing] = useState(0);
     const [currentHide, setCurrentHide] = useState(false);
 
-    const makeNewQuiz = () => {
-        const newQuizGenerator = resetQuizGenerator();
-        setQuizGenerator(newQuizGenerator);
-    }
+    const refreshPage = () => setRefreshQuizPing(prev => prev + 1);
 
-    const nextQuiz = () => {
-        setNextQuizPing((value)=>value+1);
-    }
+    const currentQuiz = useMemo(
+        ()=>{
+            if (quiz.length === 0 || lastQuizIndex < 0) {
+                return null;
+            }
+            return quiz[lastQuizIndex]
+        },
+        [quiz, lastQuizIndex]
+    );
 
-    const selectChoice = (index:number) => {
-        if (quiz == null || currentQuizFinished) return;
-        const result = quiz.select(index);
-        
-        if (result) {
-            const newChoices = [...quizChoices];
-            newChoices[result.correctIndex].show = true;
-            newChoices[result.selectedIndex].show = true;
-            
-            setQuizChoices(newChoices);
-            setCurrentQuizFinished(true);
+    const makeNewQuiz = async () => {
+        const newQuiz = await quizGenerator.generate(1000);
+        memoryContext.setQuiz(newQuiz);
+        memoryContext.setLastQuizIndex(0);
+
+        if (newQuiz.length > 0) {
+            setRefreshQuizPing(refreshQuizPing + 1);
         }
+    }
+    
+    const previousQuiz = () => {
+        if (currentQuiz !== null && lastQuizIndex > 0) {
+            memoryContext.setLastQuizIndex(prev => prev - 1);
+        }
+    }
+    
+    const nextQuiz = () => {
+        if (currentQuiz == null || currentQuiz.finished) {
+            memoryContext.setLastQuizIndex(prev => prev + 1);
+        }
+    }
+
+    const openSearchPage = () => {
+        if (!currentQuiz?.finished) return;
+
+        eventContext.pushPage(<SearchPage wordData={currentQuiz.correctWord}/>)
+    }
+
+    const selectAnswer = (index:number) => {
+        currentQuiz?.selectAnswer(index);
+        refreshPage();
     }
 
     const toggleHide = () => {
@@ -92,19 +75,10 @@ function QuizPage() {
     }
 
     useEffect(()=>{
-        setCurrentQuizFinished(false);
-
-        // nextQuizPing === 0 페이지가 새로고쳐진 경우로, 마지막 쿼즈를 보여줌
-        // 이전 퀴즈가 존재하지 않으면 current()도 새 퀴즈를 생성함
-        const promise = nextQuizPing === 0 ? quizGenerator.current() : quizGenerator.next();
-        promise
-            .then((nextQuiz)=>{
-                setQuiz(nextQuiz);
-                setCurrentQuizFinished(nextQuiz.finished);
-                setQuizChoices(nextQuiz.choices)
-                setCurrentHide(configContext.hideQuizChoices && !nextQuiz.finished);
-            });
-    }, [nextQuizPing, quizGenerator]);
+        if (quiz.length === 0 || lastQuizIndex < 0) {
+            makeNewQuiz();
+        }
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -124,19 +98,26 @@ function QuizPage() {
             else {
                 switch(event.key) {
                     case '1':
-                        if (!currentQuizFinished) selectChoice(0);
+                        selectAnswer(0);
                         break;
                     case '2':
-                        if (!currentQuizFinished) selectChoice(1);
+                        selectAnswer(1);
                         break;
                     case '3':
-                        if (!currentQuizFinished) selectChoice(2);
+                        selectAnswer(2);
                         break;
                     case '4':
-                        if (!currentQuizFinished) selectChoice(3);
+                        selectAnswer(3);
                         break;
+                    case 'e':
+                        openSearchPage();
+                        break;
+                    case 'ArrowRight':
                     case 'Enter':
-                        if (currentQuizFinished) nextQuiz();
+                        nextQuiz();
+                        break;
+                    case 'ArrowLeft':
+                        previousQuiz();
                         break;
                 }
             }
@@ -168,7 +149,7 @@ function QuizPage() {
                         margin: '10px 0px',
                     }}
                 >
-                    ({quizGenerator.currentIndex}/{quizGenerator.pulledWordsLength})
+                    ({memoryContext.lastQuizIndex+1}/{memoryContext.quiz.length})
                 </span>
                 
                 <GoogleFontIconButton
@@ -185,7 +166,7 @@ function QuizPage() {
             </div>
 
             {
-                quiz != null &&
+                currentQuiz != null &&
                 <>
                     <div
                         className='row noflex' 
@@ -195,13 +176,10 @@ function QuizPage() {
                             className='app-nodrag undraggable'
                             style={{ cursor: 'pointer' }}
                             onClick={
-                                ()=>{
-                                    if (!currentQuizFinished) return;
-                                    eventContext.pushPage(<SearchPage wordData={quiz.correct}/>)
-                                }
+                                ()=>openSearchPage()
                             }
                         >
-                            {quiz.correct.word}
+                            {currentQuiz.correctWord.word}
                         </span>
                     </div>
                     {
@@ -247,7 +225,7 @@ function QuizPage() {
                                 }}
                             >
                                 {
-                                    quizChoices.map((choice, index) => {
+                                    currentQuiz.choices.map((choice, index) => {
                                         return (
                                             <div
                                                 key={index}
@@ -259,9 +237,9 @@ function QuizPage() {
                                                         : ''
                                                     )
                                                 }
-                                                onClick={() => selectChoice(index)}
+                                                onClick={() => selectAnswer(index)}
                                             >
-                                                <span className='choice'>{index+1}. {choice.meaning}</span>
+                                                <span className='choice'>{index+1}. {choice.meaning.to}</span>
                                             </div>
                                         );
                                     })
@@ -304,31 +282,28 @@ function QuizPage() {
                     toggleHide();
                 }}
             />
-            {
-                currentQuizFinished &&
+            <div
+                className='absolute row'
+                style={{
+                    bottom: '0px',
+                    right: '0px',
+                    margin: '4px'
+                }}
+            >
+                {
+                    lastQuizIndex > 0 &&      
+                    <GoogleFontIconButton
+                        className='app-nodrag undraggable fonticon clickable'
+                        value='arrow_left'
+                        onClick={() => previousQuiz()}
+                    />
+                }
                 <GoogleFontIconButton
-                    className='app-nodrag undraggable fonticon clickable absolute'
-                    style={{
-                        margin: '4px',
-                        bottom: '0px',
-                        right: '0px'
-                    }}
+                    className='app-nodrag undraggable fonticon clickable'
                     value='arrow_right'
                     onClick={() => nextQuiz()}
                 />
-            }
-            {
-                !currentQuizFinished &&
-                <GoogleFontIconButton
-                    className='app-nodrag undraggable fonticon clickable absolute'
-                    style={{
-                        margin: '4px',
-                        bottom: '0px',
-                        right: '0px'
-                    }}
-                    value='arrow_right'
-                />
-            }
+            </div>
         </div>
     );
 }

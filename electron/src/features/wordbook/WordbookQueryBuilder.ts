@@ -18,7 +18,7 @@ class WordbookQueryBuilder {
         return new Query(`
             CREATE TABLE IF NOT EXISTS Words (
                 word TEXT PRIMARY KEY,
-                meaning TEXT NOT NULL DEFAULT '[]'
+                meanings TEXT NOT NULL DEFAULT '[]'
             );
         `);
     }
@@ -28,7 +28,6 @@ class WordbookQueryBuilder {
                 id INTEGER PRIMARY KEY,
                 word TEXT NOT NULL UNIQUE,
                 addedDate INTEGER NOT NULL,
-                priorityMeaningIndexes TEXT NOT NULL DEFAULT '[]',
                 FOREIGN KEY (word) REFERENCES Words(word) ON DELETE RESTRICT
             );
         `);
@@ -51,8 +50,7 @@ class WordbookQueryBuilder {
                 Bookmark.id,
                 Bookmark.addedDate,
                 Words.word,
-                Words.meaning,
-                Bookmark.priorityMeaningIndexes,
+                Words.meanings,
                 BookmarkQuizScore.total as quizTotal,
                 BookmarkQuizScore.correct as quizCorrect,
                 BookmarkQuizScore.incorrect as quizIncorrect,
@@ -95,10 +93,10 @@ class WordbookQueryBuilder {
         `);
     }
 
-    insertWord(params:{word:string, meaning:string}):Query {
+    insertWord(params:{word:string, meanings:string}):Query {
         return new Query(`
-            INSERT INTO Words (word, meaning)
-            VALUES ($word, $meaning)
+            INSERT INTO Words (word, meanings)
+            VALUES ($word, $meanings)
         `, params);
     }
 
@@ -110,10 +108,10 @@ class WordbookQueryBuilder {
         `, params);
     }
 
-    updateWord(params:{word:string, meaning:string}):Query {
+    updateWord(params:{word:string, meanings:string}):Query {
         return new Query(`
             UPDATE Words
-            SET meaning = $meaning
+            SET meanings = $meanings
             WHERE word = $word
         `, params);
     }
@@ -193,8 +191,8 @@ class WordbookQueryBuilder {
         limit? : number,
     }):Query<RawDBBookmarkView> {
         const {
-            where,
-            orderBy,
+            where = new WhereQuery(),
+            orderBy = new OrderByQuery(),
             offset,
             limit
         } = queryFragments;
@@ -223,7 +221,7 @@ class WordbookQueryBuilder {
                 ? `OFFSET ${offset}`
                 : ''
             }
-        `);
+        `, {...where.params, ...orderBy.params});
     }
 
     updateQuizScore(params:{word:string, correct:number, incorrect:number}):Query {

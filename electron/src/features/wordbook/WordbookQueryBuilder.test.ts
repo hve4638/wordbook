@@ -28,11 +28,11 @@ describe('WordbookQuery', () => {
         }
     }
 
-    function insertWord(word:string, meaning:string='[]') {
-        queryBuilder.insertWord({word , meaning}).run(db);
+    function insertWord(word:string, meanings:string='[]') {
+        queryBuilder.insertWord({word , meanings}).run(db);
     }
-    function updateWord(word:string, meaning:string='[]') {
-        queryBuilder.updateWord({word , meaning}).run(db);
+    function updateWord(word:string, meanings:string='[]') {
+        queryBuilder.updateWord({word , meanings}).run(db);
     }
     function insertBookmark(word:string, addedDate:number=0) {
         queryBuilder.insertBookmark({word:word, addedDate}).run(db);
@@ -78,7 +78,7 @@ describe('WordbookQuery', () => {
 
     test('insert Words', ()=>{
         createTablesAndViews();
-        const expected = { meaning:'[]', word:'test'};
+        const expected = { meanings:'[]', word:'test'};
         
         queryBuilder.insertWord(expected).run(db);
         const actual = queryBuilder.selectWord({ word : expected.word }).get(db);
@@ -93,14 +93,14 @@ describe('WordbookQuery', () => {
         const newMeaning = JSON.stringify([{from:'word', to:'단어', fromType:'n'}]);
         insertWord('word', oldMeaning);
         {
-            const expected = { meaning:oldMeaning, word:'word'};
+            const expected = { meanings:oldMeaning, word:'word'};
             const actual = queryBuilder.selectWord({ word : expected.word }).get(db);
             expect(actual).toEqual(expected);
         }
 
         updateWord('word', newMeaning);
         {
-            const expected = { meaning:newMeaning, word:'word'};
+            const expected = { meanings:newMeaning, word:'word'};
             const actual = queryBuilder.selectWord({ word : expected.word }).get(db);
             expect(actual).toEqual(expected);
         }
@@ -130,7 +130,7 @@ describe('WordbookQuery', () => {
     test('insert Bookmark', ()=>{
         createTablesAndViews();
 
-        queryBuilder.insertWord({word:'word', meaning:'[]'}).run(db);
+        queryBuilder.insertWord({word:'word', meanings:'[]'}).run(db);
         {
             const params = { 'word':'word', 'addedDate': 0 }
             expect(
@@ -149,14 +149,13 @@ describe('WordbookQuery', () => {
         createTablesAndViews();
         createTriggers();
 
-        queryBuilder.insertWord({word:'word', meaning:'[]'}).run(db);
+        queryBuilder.insertWord({word:'word', meanings:'[]'}).run(db);
         const param = { 'word':'word', 'addedDate': 0 }
         queryBuilder.insertBookmark(param).run(db);
 
         const expected = {
             ...param,
-            id : expect.any(Number),
-            priorityMeaningIndexes : '[]'
+            id : expect.any(Number)
         };
         const actual = queryBuilder.selectRawBookmark({word:'word'}).get(db);
         expect(actual).toEqual(expected);
@@ -165,7 +164,7 @@ describe('WordbookQuery', () => {
         createTablesAndViews();
         createTriggers();
 
-        queryBuilder.insertWord({word:'word', meaning:'[]'}).run(db);
+        queryBuilder.insertWord({word:'word', meanings:'[]'}).run(db);
         const param = { 'word':'word', 'addedDate': 0 }
         queryBuilder.insertBookmark(param).run(db);
 
@@ -185,12 +184,11 @@ describe('WordbookQuery', () => {
         insertWord('word');
         insertBookmark('word', 0);
 
-        const expected = {
-            id : expect.any(Number),
+        const expected:BookmarkData = {
+            id : expect.any(Number) as any,
             word: 'word',
-            meaning : expect.any(String),
+            meanings : expect.any(String) as any,
             addedDate : 0,
-            priorityMeaningIndexes : expect.any(String),
             quizTotal : 0,
             quizCorrect : 0,
             quizIncorrect : 0,

@@ -4,7 +4,7 @@ type ElectronNoResult = Promise<[Error|null]>;
 type BookmarkData = {
     id : number,
     word : string,
-    meaning : WordMeaning[],
+    meanings : WordMeaning[],
     addedDate : number,
     quizCorrect : number,
     quizIncorrect: number,
@@ -12,13 +12,8 @@ type BookmarkData = {
     quizIncorrectRate : number,
 }
 type WordData = {
-    id : number,
     word : string,
-    data : WordMeaning[],
-    addedDate : number,
-    quizCorrect : number,
-    quizIncorrect: number,
-    quizTotal: number
+    meanings : WordMeaning[],
 }
 
 type WordMeaning = {
@@ -26,6 +21,7 @@ type WordMeaning = {
     to : string,
     fromType : string,
     star? : boolean,
+    custom? : boolean,
 };
 
 type MultipleSelectOrder = 'sequence'|'interleave';
@@ -74,7 +70,7 @@ type IPC_APIS = {
     echoSync: (message:string) => ElectronResult<string>,
     openBrowser: (url:string) => ElectronNoResult,
     searchWord: (word:string) => ElectronResult<WordMeaning[]>,
-    editWord : (word:string, meaning:WordMeaning[]) => ElectronNoResult,
+    editWord : (word:string, meanings:WordMeaning[]) => ElectronNoResult,
     addBookmark: (word:string) => ElectronResult<number>,
     getBookmark: (word:string) => ElectronResult<BookmarkData>,
     getBookmarks: (conditions:BookmarkSelectCondition[], option:WordSelectOption) => ElectronResult<BookmarkData[]>,

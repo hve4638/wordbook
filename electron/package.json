@@ -1,7 +1,7 @@
 {
     "name": "wordbook-electron",
-    "version": "0.2.3",
-    "description": "Simple Wordbook",
+    "version": "0.3.0",
+    "description": "Wordbook",
     "main": "compiled/main.js",
     "homepage": ".",
     "scripts": {
